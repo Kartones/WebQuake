@@ -2,9 +2,51 @@
 
 **WebQuake** is an HTML5 WebGL port of the game Quake by id Software.
 
-[Online demo by SpiritQuaddicted](http://quaddicted.com/forum/viewtopic.php?pid=438).
-
 # Installing and running
+
+## Docker instructions
+
+Based on [@AkashV22/docker-web-quake](https://github.com/AkashV22/docker-web-quake). Requires Docker `>= 1.8.0`.
+
+### Client
+
+Build (from `/Client` folder):
+```bash
+docker build -f Dockerfile.client -t webquake .
+```
+
+And run:
+```bash
+docker run -p 8080:80 webquake
+```
+
+Available at `http://localhost:8080`.
+
+To stop:
+```bash
+docker stop webquake
+```
+
+### Server
+
+Build:
+```bash
+docker build -f Dockerfile.server -t webquake-server .
+```
+
+And run:
+```bash
+docker run -p 8081:80 webquake-server
+```
+
+Available at `http://localhost:8081`. To join it from the client, go to `Multiplayer` -> `Ip` -> enter `localhost:8081`.
+
+To stop:
+```bash
+docker stop webquake-server
+```
+
+## Old instructions
 
 Follow these steps to install WebQuake:
 

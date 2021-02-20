@@ -1,0 +1,9 @@
+FROM node:alpine
+WORKDIR /usr/src/app
+
+COPY Server .
+
+COPY id1 ./id1
+
+RUN npm install websocket
+ENTRYPOINT [ "node", "WebQDS.js", "-port", "80" ]

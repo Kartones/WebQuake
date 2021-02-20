@@ -1,0 +1,7 @@
+FROM nginx:mainline-alpine
+
+COPY Client /usr/share/nginx/html
+
+COPY id1 /usr/share/nginx/html/id1/
+
+RUN rm -f /usr/share/nginx/html/index.html
