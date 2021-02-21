@@ -45,7 +45,9 @@ And run:
 docker run -p 26000:80/tcp -p 26000:80/udp webquake-server
 ```
 
-Available at `http://localhost:8081`. To join it from the client, go to `Multiplayer` -> `Ip` -> enter `localhost:26000`.
+Available at `http://localhost:26000`. 
+
+To join it from the client, go to `Multiplayer` -> `Ip` -> enter `localhost:26000`. Note that client must use `sv_protocol 15` (standard NetQuake protocol), enhanced protocols like [Fitzquake/666](https://quakewiki.org/wiki/Fitzquake_Protocol) won't work.
 
 To stop:
 ```bash
