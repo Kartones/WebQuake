@@ -1455,8 +1455,8 @@ SV.WallFriction = function(ent, trace)
 	var i = normal[0] * ent.v_float[PR.entvars.velocity]
 		+ normal[1] * ent.v_float[PR.entvars.velocity1]
 		+ normal[2] * ent.v_float[PR.entvars.velocity2];
-	ent.v_float[PR.entvars.velocity] = (ent.v_float[PR.entvars.velocity] - normal[0] * i) * d; 
-	ent.v_float[PR.entvars.velocity1] = (ent.v_float[PR.entvars.velocity1] - normal[1] * i) * d; 
+	ent.v_float[PR.entvars.velocity] = (ent.v_float[PR.entvars.velocity] - normal[0] * i) * d;
+	ent.v_float[PR.entvars.velocity1] = (ent.v_float[PR.entvars.velocity1] - normal[1] * i) * d;
 };
 
 SV.TryUnstick = function(ent, oldvel)
@@ -1957,7 +1957,7 @@ SV.ReadClientMessage = function()
 	var ret, cmd, s, i;
 	var cmds = [
 		'status',
-		'god', 
+		'god',
 		'notarget',
 		'fly',
 		'name',
@@ -2023,7 +2023,7 @@ SV.ReadClientMessage = function()
 				SV.ReadClientMove();
 			else
 			{
-				Sys.Print('SV.ReadClientMessage: unknown command char\n');
+				Sys.Print('SV.ReadClientMessage: unknown command char ' + cmd + '\n');
 				return;
 			}
 		}
@@ -2178,7 +2178,7 @@ SV.TouchLinks = function(ent, node)
 		if ((touch.v_int[PR.entvars.touch] === 0) || (touch.v_float[PR.entvars.solid] !== SV.solid.trigger))
 			continue;
 		if ((ent.v_float[PR.entvars.absmin] > touch.v_float[PR.entvars.absmax]) ||
-			(ent.v_float[PR.entvars.absmin1] > touch.v_float[PR.entvars.absmax1]) || 
+			(ent.v_float[PR.entvars.absmin1] > touch.v_float[PR.entvars.absmax1]) ||
 			(ent.v_float[PR.entvars.absmin2] > touch.v_float[PR.entvars.absmax2]) ||
 			(ent.v_float[PR.entvars.absmax] < touch.v_float[PR.entvars.absmin]) ||
 			(ent.v_float[PR.entvars.absmax1] < touch.v_float[PR.entvars.absmin1]) ||

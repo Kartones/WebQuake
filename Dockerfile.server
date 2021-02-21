@@ -5,5 +5,8 @@ COPY Server .
 
 COPY id1 ./id1
 
+EXPOSE 80/tcp
+EXPOSE 80/udp
+
 RUN npm install websocket
 ENTRYPOINT [ "node", "WebQDS.js", "-port", "80" ]
