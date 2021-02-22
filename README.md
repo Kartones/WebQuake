@@ -12,7 +12,7 @@ This fork is based on the original (), but includes also:
 
 Requires Docker `>= 1.8.0`.
 
-First of all, copy Quake's `id1` folder into this repo's root (don't worry, it's .gitignored).
+First of all, copy Quake's `id1` folder into this repo's root (don't worry, it's .gitignored). The folder already exists and contains an `autoexec.cfg` file with basic tweaks (some will be used by the Server, others by the Client).
 
 ### Client
 
