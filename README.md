@@ -54,6 +54,10 @@ To stop:
 docker stop webquake-server
 ```
 
+## Development
+
+See [DEVELOPMENT.md](DEVELOPMENT.md)
+
 ## Old instructions
 
 Follow these steps to install WebQuake:

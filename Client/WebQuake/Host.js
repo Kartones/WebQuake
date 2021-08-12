@@ -261,30 +261,31 @@ Host.timetotal = 0.0;
 Host.timecount = 0;
 Host.Frame = function()
 {
-	if (Host.serverprofile.value === 0)
-	{
+	if (Host.serverprofile.value === 0) {
 		Host._Frame();
 		return;
 	}
-	var time1 = Sys.FloatTime();
+
+	const time1 = Sys.FloatTime();
 	Host._Frame();
 	Host.timetotal += Sys.FloatTime() - time1;
-	if (++Host.timecount <= 999)
+	if (++Host.timecount <= 999) {
 		return;
-	var m = (Host.timetotal * 1000.0 / Host.timecount) >> 0;
+    }
+	const m = (Host.timetotal * 1000.0 / Host.timecount) >> 0;
 	Host.timecount = 0;
 	Host.timetotal = 0.0;
-	var i, c = 0;
-	for (i = 0; i < SV.svs.maxclients; ++i)
+	let c = 0;
+	for (let i = 0; i < SV.svs.maxclients; ++i)
 	{
-		if (SV.svs.clients[i].active === true)
-			++c;
+		if (SV.svs.clients[i].active === true) {
+            ++c;
+        }
 	}
-	Con.Print('serverprofile: ' + (c <= 9 ? ' ' : '') + c + ' clients ' + (m <= 9 ? ' ' : '') + m + ' msec\n');
+    Con.Print(`serverprofile: ${c <= 9 ? ' ' : ''}${c} clients ${m <= 9 ? ' ' : ''}${m} msec\n`);
 };
 
-Host.Init = function()
-{
+Host.Init = function() {
 	Host.oldrealtime = Sys.FloatTime();
 	Cmd.Init();
 	V.Init();
@@ -309,7 +310,7 @@ Host.Init = function()
 	Sbar.Init();
 	CL.Init();
 	IN.Init();
-	Cmd.text = 'exec quake.rc\n' + Cmd.text;
+	Cmd.text = `exec quake.rc\n${Cmd.text}`;
 	Host.initialized = true;
 	Sys.Print('========Quake Initialized=========\n');
 };
