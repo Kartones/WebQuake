@@ -2,7 +2,7 @@
 
 **WebQuake** is an HTML5 WebGL port of the game Quake by id Software.
 
-This fork is based on the original (), but includes also:
+This fork is based on the original ([WebQuake](https://github.com/Triang3l/WebQuake)), but includes also:
 - Docker support (based on [@AkashV22/docker-web-quake](https://github.com/AkashV22/docker-web-quake))
 - [WinQuake connection bugfix PR](https://github.com/Triang3l/WebQuake/pull/39/files)
 
@@ -56,7 +56,7 @@ docker stop webquake-server
 
 ## Development
 
-See [DEVELOPMENT.md](DEVELOPMENT.md)
+See [DEVELOPMENT.md](DEVELOPMENT).
 
 ## Old instructions
 

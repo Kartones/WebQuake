@@ -1,3 +1,7 @@
+/**
+ * GLQuake's client code (adapted to WebGL)? (To be confirmed)
+ */
+
 GL = {};
 
 GL.textures = [];

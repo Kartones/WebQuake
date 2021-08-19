@@ -25,23 +25,10 @@ Based on [Fabien Sanglard's excellent Quake source code review](https://fabiensa
 
 [ASCII Table](https://kartones.net/demos/016/index.html): Useful for charCode conversions.
 
+Documentation is being added to each Javascript file.
+
 ## Client
 
 `\Client\WebQuake` folder.
 
-
-#### `index.html`
-
-Contains MS-DOS like screens, loads all JS and also contains some WebGL shaders
-
-#### `Sys.js`
-
-Entry point, contains `window.onload` function.
-
-#### `GL.js`
-
-Seems to contain GLQuake's client code (adapted to WebGL).
-
-#### `Q.js`
-
-Contains some helper functions to handle strings, int arrays, floats, etc. and conversions between them.
+`index.html` contains MS-DOS like screens, loads all JS and also contains some WebGL shaders.

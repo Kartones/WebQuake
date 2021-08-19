@@ -1,15 +1,31 @@
+/**
+ * Commands are generated mostly via the console, but can also come from the server or even direct keystrokes.
+ * source: https://fabiensanglard.net/quakeSource/index.php
+ */
+
 Cmd = {};
 
+// Command aliases
 Cmd.alias = [];
+
+// Command contents
+Cmd.text = '';
+
+// Command arguments
+Cmd.argv = [];
+
+// Commands added via AddCommand
+Cmd.functions = [];
 
 Cmd.Wait_f = function () {
     Cmd.wait = true;
 };
 
-Cmd.text = '';
-
 Cmd.Execute = function () {
-    var i, c, line = '', quotes = false;
+    var c,
+        line = '',
+        quotes = false;
+
     while (Cmd.text.length !== 0) {
         c = Cmd.text.charCodeAt(0);
         Cmd.text = Cmd.text.substring(1);
@@ -99,11 +115,11 @@ Cmd.Alias_f = function () {
         if (j !== Cmd.argv.length)
             value += ' ';
     }
-    Cmd.alias[i] = { name: s, value: value + '\n' };
+    Cmd.alias[i] = {
+        name: s,
+        value: value + '\n'
+    };
 };
-
-Cmd.argv = [];
-Cmd.functions = [];
 
 Cmd.Init = function () {
     Cmd.AddCommand('stuffcmds', Cmd.StuffCmds_f);

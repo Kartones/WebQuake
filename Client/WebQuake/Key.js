@@ -1,5 +1,6 @@
 Key = {};
 
+// < 127 seem JS keycodes, remaining ones don't?
 Key.k = {
     tab: 9,
     enter: 13,
@@ -49,11 +50,13 @@ Key.edit_line = '';
 Key.history_line = 1;
 
 Key.dest = {
+    // enum
     game: 0,
     console: 1,
     message: 2,
     menu: 3,
 
+    // and actual value:
     value: 0
 };
 
@@ -61,6 +64,8 @@ Key.bindings = [];
 Key.consolekeys = [];
 Key.shift = [];
 Key.down = [];
+
+Key.chat_buffer = '';
 
 Key.names = [
     { name: 'TAB', keynum: Key.k.tab },
@@ -178,8 +183,6 @@ Key.Console = function (key) {
 
     Key.edit_line += String.fromCharCode(key);
 };
-
-Key.chat_buffer = '';
 
 Key.Message = function (key) {
     if (key === Key.k.enter) {

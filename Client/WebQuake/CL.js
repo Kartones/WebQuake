@@ -13,6 +13,94 @@ CL.active = {
     connected: 2
 };
 
+
+// Main
+CL.cls = {
+    state: 0,
+    spawnparms: '',
+    demonum: 0,
+    message: {
+        data: new ArrayBuffer(8192),
+        cursize: 0
+    }
+};
+CL.static_entities = [];
+CL.visedicts = [];
+
+// Input related
+CL.kbutton = {
+    mlook: 0,
+    klook: 1,
+    left: 2,
+    right: 3,
+    forward: 4,
+    back: 5,
+    lookup: 6,
+    lookdown: 7,
+    moveleft: 8,
+    moveright: 9,
+    strafe: 10,
+    speed: 11,
+    use: 12,
+    jump: 13,
+    attack: 14,
+    moveup: 15,
+    movedown: 16,
+    num: 17
+};
+CL.kbuttons = [];
+
+CL.sendmovebuf = {
+    data: new ArrayBuffer(16),
+    cursize: 0
+};
+
+
+// Parsing related
+CL.svc_strings = [
+    'bad',
+    'nop',
+    'disconnect',
+    'updatestat',
+    'version',
+    'setview',
+    'sound',
+    'time',
+    'print',
+    'stufftext',
+    'setangle',
+    'serverinfo',
+    'lightstyle',
+    'updatename',
+    'updatefrags',
+    'clientdata',
+    'stopsound',
+    'updatecolors',
+    'particle',
+    'damage',
+    'spawnstatic',
+    'OBSOLETE spawnbinary',
+    'spawnbaseline',
+    'temp_entity',
+    'setpause',
+    'signonnum',
+    'centerprint',
+    'killedmonster',
+    'foundsecret',
+    'spawnstaticsound',
+    'intermission',
+    'finale',
+    'cdtrack',
+    'sellscreen',
+    'cutscene'
+];
+
+CL.lastmsg = 0.0;
+
+// Temporary entities ("tent") related
+
+CL.temp_entities = [];
+
 // demo
 
 CL.StopPlayback = function () {
@@ -207,28 +295,6 @@ CL.TimeDemo_f = function () {
 
 // input
 
-CL.kbutton = {
-    mlook: 0,
-    klook: 1,
-    left: 2,
-    right: 3,
-    forward: 4,
-    back: 5,
-    lookup: 6,
-    lookdown: 7,
-    moveleft: 8,
-    moveright: 9,
-    strafe: 10,
-    speed: 11,
-    use: 12,
-    jump: 13,
-    attack: 14,
-    moveup: 15,
-    movedown: 16,
-    num: 17
-};
-CL.kbuttons = [];
-
 CL.KeyDown = function () {
     var b = CL.kbutton[Cmd.argv[0].substring(1)];
     if (b == null)
@@ -368,33 +434,43 @@ CL.BaseMove = function () {
     }
 };
 
-CL.sendmovebuf = { data: new ArrayBuffer(16), cursize: 0 };
+/**
+ * Sends a movement command through the network
+ */
 CL.SendMove = function () {
-    var buf = CL.sendmovebuf;
-    buf.cursize = 0;
-    MSG.WriteByte(buf, Protocol.clc.move);
-    MSG.WriteFloat(buf, CL.state.mtime[0]);
-    MSG.WriteAngle(buf, CL.state.viewangles[0]);
-    MSG.WriteAngle(buf, CL.state.viewangles[1]);
-    MSG.WriteAngle(buf, CL.state.viewangles[2]);
-    MSG.WriteShort(buf, CL.state.cmd.forwardmove);
-    MSG.WriteShort(buf, CL.state.cmd.sidemove);
-    MSG.WriteShort(buf, CL.state.cmd.upmove);
-    var bits = 0;
+    let messageBuffer = CL.sendmovebuf;
+    messageBuffer.cursize = 0;
+
+    MSG.WriteByte(messageBuffer, Protocol.clc.move);
+    MSG.WriteFloat(messageBuffer, CL.state.mtime[0]);
+    MSG.WriteAngle(messageBuffer, CL.state.viewangles[0]);
+    MSG.WriteAngle(messageBuffer, CL.state.viewangles[1]);
+    MSG.WriteAngle(messageBuffer, CL.state.viewangles[2]);
+    MSG.WriteShort(messageBuffer, CL.state.cmd.forwardmove);
+    MSG.WriteShort(messageBuffer, CL.state.cmd.sidemove);
+    MSG.WriteShort(messageBuffer, CL.state.cmd.upmove);
+
+    let bits = 0;
     if ((CL.kbuttons[CL.kbutton.attack].state & 3) !== 0)
         bits += 1;
     CL.kbuttons[CL.kbutton.attack].state &= 5;
     if ((CL.kbuttons[CL.kbutton.jump].state & 3) !== 0)
         bits += 2;
     CL.kbuttons[CL.kbutton.jump].state &= 5;
-    MSG.WriteByte(buf, bits);
-    MSG.WriteByte(buf, CL.impulse);
+    MSG.WriteByte(messageBuffer, bits);
+
+    MSG.WriteByte(messageBuffer, CL.impulse);
     CL.impulse = 0;
-    if (CL.cls.demoplayback === true)
+
+    if (CL.cls.demoplayback === true) {
         return;
-    if (++CL.state.movemessages <= 2)
+    }
+    if (++CL.state.movemessages <= 2) {
         return;
-    if (NET.SendUnreliableMessage(CL.cls.netcon, buf) === -1) {
+    }
+
+    const returnCode = NET.SendUnreliableMessage(CL.cls.netcon, messageBuffer);
+    if (returnCode === -1) {
         Con.Print('CL.SendMove: lost server connection\n');
         CL.Disconnect();
     }
@@ -421,16 +497,6 @@ CL.InitInput = function () {
 };
 
 // main
-
-CL.cls = {
-    state: 0,
-    spawnparms: '',
-    demonum: 0,
-    message: { data: new ArrayBuffer(8192), cursize: 0 }
-};
-
-CL.static_entities = [];
-CL.visedicts = [];
 
 CL.Rcon_f = function () {
     if (CL.rcon_password.string.length === 0) {
@@ -518,7 +584,12 @@ CL.ClearState = function () {
         last_received_message: 0.0,
         viewentity: 0,
         num_statics: 0,
-        viewent: { num: -1, origin: [0.0, 0.0, 0.0], angles: [0.0, 0.0, 0.0], skinnum: 0 },
+        viewent: {
+            num: -1,
+            origin: [0.0, 0.0, 0.0],
+            angles: [0.0, 0.0, 0.0],
+            skinnum: 0
+        },
         cdtrack: 0,
         looptrack: 0
     };
@@ -527,18 +598,16 @@ CL.ClearState = function () {
 
     CL.entities = [];
 
-    var i;
-
     CL.dlights = [];
-    for (i = 0; i <= 31; ++i)
+    for (let i = 0; i <= 31; ++i)
         CL.dlights[i] = { radius: 0.0, die: 0.0 };
 
     CL.lightstyle = [];
-    for (i = 0; i <= 63; ++i)
+    for (let i = 0; i <= 63; ++i)
         CL.lightstyle[i] = '';
 
     CL.beams = [];
-    for (i = 0; i <= 23; ++i)
+    for (let i = 0; i <= 23; ++i)
         CL.beams[i] = { endtime: 0.0 };
 };
 
@@ -820,8 +889,7 @@ CL.RelinkEntities = function () {
 CL.ReadFromServer = function () {
     CL.state.oldtime = CL.state.time;
     CL.state.time += Host.frametime;
-    var ret;
-    for (; ;) {
+    for (let ret; ;) {
         ret = CL.GetMessage();
         if (ret === -1)
             Host.Error('CL.ReadFromServer: lost server connection');
@@ -838,6 +906,9 @@ CL.ReadFromServer = function () {
     CL.UpdateTEnts();
 };
 
+/**
+ * Sends a movement command (mouse & keyboard)
+ */
 CL.SendCmd = function () {
     if (CL.cls.state !== CL.active.connected)
         return;
@@ -903,44 +974,6 @@ CL.Init = function () {
 
 // parse
 
-CL.svc_strings = [
-    'bad',
-    'nop',
-    'disconnect',
-    'updatestat',
-    'version',
-    'setview',
-    'sound',
-    'time',
-    'print',
-    'stufftext',
-    'setangle',
-    'serverinfo',
-    'lightstyle',
-    'updatename',
-    'updatefrags',
-    'clientdata',
-    'stopsound',
-    'updatecolors',
-    'particle',
-    'damage',
-    'spawnstatic',
-    'OBSOLETE spawnbinary',
-    'spawnbaseline',
-    'temp_entity',
-    'setpause',
-    'signonnum',
-    'centerprint',
-    'killedmonster',
-    'foundsecret',
-    'spawnstaticsound',
-    'intermission',
-    'finale',
-    'cdtrack',
-    'sellscreen',
-    'cutscene'
-];
-
 CL.EntityNum = function (num) {
     if (num < CL.entities.length)
         return CL.entities[num];
@@ -986,7 +1019,6 @@ CL.ParseStartSoundPacket = function () {
     S.StartSound(ent, channel, CL.state.sound_precache[sound_num], pos, volume / 255.0, attenuation);
 };
 
-CL.lastmsg = 0.0;
 CL.KeepaliveMessage = function () {
     if ((SV.server.active === true) || (CL.cls.demoplayback === true))
         return;
@@ -1415,8 +1447,6 @@ CL.ParseServerMessage = function () {
 };
 
 // tent
-
-CL.temp_entities = [];
 
 CL.InitTEnts = function () {
     CL.sfx_wizhit = S.PrecacheSound('wizard/hit.wav');

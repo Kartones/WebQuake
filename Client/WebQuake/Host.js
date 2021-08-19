@@ -1,22 +1,38 @@
+/**
+ * Host logic and commands (including console commands, cheats and the like)
+ */
 Host = {};
 
 Host.framecount = 0;
+Host.time3 = 0.0;
+Host.timetotal = 0.0;
+Host.timecount = 0;
 
+
+/**
+ * Ends current game or demo
+ * @param {String} message
+ */
 Host.EndGame = function (message) {
-    Con.DPrint('Host.EndGame: ' + message + '\n');
-    if (CL.cls.demonum !== -1)
+    Con.DPrint($`Host.EndGame: ${message}\n`);
+    if (CL.cls.demonum !== -1) {
         CL.NextDemo();
-    else
+    } else {
         CL.Disconnect();
+    }
     throw 'Host.abortserver';
 };
 
+/**
+ * Handles an error, shutting down & closing everything before raising a JS Error to stop execution.
+ * @param {*} error
+ */
 Host.Error = function (error) {
     if (Host.inerror === true)
         Sys.Error('Host.Error: recursively entered');
     Host.inerror = true;
     SCR.EndLoadingPlaque();
-    Con.Print('Host.Error: ' + error + '\n');
+    Con.Print(`Host.Error: ${error}\n`);
     if (SV.server.active === true)
         Host.ShutdownServer();
     CL.Disconnect();
@@ -25,18 +41,26 @@ Host.Error = function (error) {
     throw new Error('Host.abortserver');
 };
 
+// TODO: Why called FindMaxClients if it's actually resetting everything, disconnecting and getting out of multiplayer?
 Host.FindMaxClients = function () {
     SV.svs.maxclients = SV.svs.maxclientslimit = 1;
     CL.cls.state = CL.active.disconnected;
     SV.svs.clients = [{
         num: 0,
-        message: { data: new ArrayBuffer(8000), cursize: 0, allowoverflow: true },
+        message: {
+            data: new ArrayBuffer(8000),
+            cursize: 0,
+            allowoverflow: true
+        },
         colors: 0,
         old_frags: 0
     }];
     Cvar.SetValue('deathmatch', 0);
 };
 
+/**
+ * Initalizes/Resets everything, including setting to singleplayer mode
+ */
 Host.InitLocal = function () {
     Host.InitCommands();
     Host.framerate = Cvar.RegisterVariable('host_framerate', '0');
@@ -63,51 +87,54 @@ Host.ClientPrint = function (string) {
 };
 
 Host.BroadcastPrint = function (string) {
-    var i, client;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
+    let client;
+    for (let i = 0; i < SV.svs.maxclients; ++i) {
         client = SV.svs.clients[i];
-        if ((client.active !== true) || (client.spawned !== true))
+        if ((client.active !== true) || (client.spawned !== true)) {
             continue;
+        }
         MSG.WriteByte(client.message, Protocol.svc.print);
         MSG.WriteString(client.message, string);
     }
 };
 
 Host.DropClient = function (crash) {
-    var client = Host.client;
+    let client = Host.client;
     if (crash !== true) {
         if (NET.CanSendMessage(client.netconnection) === true) {
             MSG.WriteByte(client.message, Protocol.svc.disconnect);
             NET.SendMessage(client.netconnection, client.message);
         }
         if ((client.edict != null) && (client.spawned === true)) {
-            var saveSelf = PR.globals_int[PR.globalvars.self];
+            const saveSelf = PR.globals_int[PR.globalvars.self];
             PR.globals_int[PR.globalvars.self] = client.edict.num;
             PR.ExecuteProgram(PR.globals_int[PR.globalvars.ClientDisconnect]);
             PR.globals_int[PR.globalvars.self] = saveSelf;
         }
-        Sys.Print('Client ' + SV.GetClientName(client) + ' removed\n');
+        Sys.Print(`Client ${SV.GetClientName(client)} removed\n`);
     }
+
     NET.Close(client.netconnection);
     client.netconnection = null;
     client.active = false;
     SV.SetClientName(client, '');
     client.old_frags = -999999;
     --NET.activeconnections;
-    var i, num = client.num;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
+
+    const num = client.num;
+    for (let i = 0; i < SV.svs.maxclients; ++i) {
         client = SV.svs.clients[i];
-        if (client.active !== true)
-            continue;
-        MSG.WriteByte(client.message, Protocol.svc.updatename);
-        MSG.WriteByte(client.message, num);
-        MSG.WriteByte(client.message, 0);
-        MSG.WriteByte(client.message, Protocol.svc.updatefrags);
-        MSG.WriteByte(client.message, num);
-        MSG.WriteShort(client.message, 0);
-        MSG.WriteByte(client.message, Protocol.svc.updatecolors);
-        MSG.WriteByte(client.message, num);
-        MSG.WriteByte(client.message, 0);
+        if (client.active === true) {
+            MSG.WriteByte(client.message, Protocol.svc.updatename);
+            MSG.WriteByte(client.message, num);
+            MSG.WriteByte(client.message, 0);
+            MSG.WriteByte(client.message, Protocol.svc.updatefrags);
+            MSG.WriteByte(client.message, num);
+            MSG.WriteShort(client.message, 0);
+            MSG.WriteByte(client.message, Protocol.svc.updatecolors);
+            MSG.WriteByte(client.message, num);
+            MSG.WriteByte(client.message, 0);
+        }
     }
 };
 
@@ -154,14 +181,18 @@ Host.WriteConfiguration = function () {
 Host.ServerFrame = function () {
     PR.globals_float[PR.globalvars.frametime] = Host.frametime;
     SV.server.datagram.cursize = 0;
+
     SV.CheckForNewClients();
+
     SV.RunClients();
-    if ((SV.server.paused !== true) && ((SV.svs.maxclients >= 2) || (Key.dest.value === Key.dest.game)))
+
+    // not paused and either playing multiplayer or game keystroke
+    if ((SV.server.paused !== true) && ((SV.svs.maxclients >= 2) || (Key.dest.value === Key.dest.game))) {
         SV.Physics();
+    }
+
     SV.SendClientMessages();
 };
-
-Host.time3 = 0.0;
 
 /**
  * Game engine frame. Updates network/local logic, graphics, sound
@@ -193,22 +224,21 @@ Host._Frame = function () {
         return;
     }
 
+    // Executes a command, if there was any
     Cmd.Execute();
-
+    // Sends a movement command
     CL.SendCmd();
 
     if (SV.server.active === true) {
         Host.ServerFrame();
     }
-
     if (CL.cls.state === CL.active.connected) {
         CL.ReadFromServer();
     }
 
+    // Rendering
     const beforeGraphicsTime = Host.speeds.value !== 0 ? Sys.FloatTime() : 0;
-
     SCR.UpdateScreen();
-
     const afterGraphicsTime = Host.speeds.value !== 0 ? Sys.FloatTime() : 0;
 
     if (CL.cls.signon === 4) {
@@ -238,31 +268,31 @@ Host._Frame = function () {
     ++Host.framecount;
 };
 
-Host.timetotal = 0.0;
-Host.timecount = 0;
-
 Host.Frame = function () {
     if (Host.serverprofile.value === 0) {
         Host._Frame();
         return;
     }
 
-    const time1 = Sys.FloatTime();
+    const preFrameTime = Sys.FloatTime();
+
     Host._Frame();
-    Host.timetotal += Sys.FloatTime() - time1;
+
+    Host.timetotal += Sys.FloatTime() - preFrameTime;
     if (++Host.timecount <= 999) {
         return;
     }
-    const m = (Host.timetotal * 1000.0 / Host.timecount) >> 0;
+    const millis = (Host.timetotal * 1000.0 / Host.timecount) >> 0;
     Host.timecount = 0;
     Host.timetotal = 0.0;
-    let c = 0;
+
+    let activeClientsCount = 0;
     for (let i = 0; i < SV.svs.maxclients; ++i) {
         if (SV.svs.clients[i].active === true) {
-            ++c;
+            ++activeClientsCount;
         }
     }
-    Con.Print(`serverprofile: ${c <= 9 ? ' ' : ''}${c} clients ${m <= 9 ? ' ' : ''}${m} msec\n`);
+    Con.Print(`serverprofile: ${activeClientsCount <= 9 ? ' ' : ''}${activeClientsCount} clients ${millis <= 9 ? ' ' : ''}${millis} msec\n`);
 };
 
 Host.Init = function () {
@@ -290,6 +320,7 @@ Host.Init = function () {
     Sbar.Init();
     CL.Init();
     IN.Init();
+    // Initial command
     Cmd.text = `exec quake.rc\n${Cmd.text}`;
     Host.initialized = true;
     Sys.Print('========Quake Initialized=========\n');
@@ -1056,169 +1087,112 @@ Host.Give_f = function () {
         Cmd.ForwardToServer();
         return;
     }
-    if (PR.globals_float[PR.globalvars.deathmatch] !== 0)
-        return;
-    if (Cmd.argv.length <= 1)
-        return;
-    var t = Cmd.argv[1].charCodeAt(0);
-    var ent = SV.player;
 
-    if ((t >= 48) && (t <= 57)) {
-        if (COM.hipnotic !== true) {
-            if (t >= 50)
-                ent.v_float[PR.entvars.items] |= Def.it.shotgun << (t - 50);
-            return;
-        }
-        if (t === 54) {
-            if (Cmd.argv[1].charCodeAt(1) === 97)
-                ent.v_float[PR.entvars.items] |= Def.hit.proximity_gun;
-            else
-                ent.v_float[PR.entvars.items] |= Def.it.grenade_launcher;
-            return;
-        }
-        if (t === 57)
-            ent.v_float[PR.entvars.items] |= Def.hit.laser_cannon;
-        else if (t === 48)
-            ent.v_float[PR.entvars.items] |= Def.hit.mjolnir;
-        else if (t >= 50)
-            ent.v_float[PR.entvars.items] |= Def.it.shotgun << (t - 50);
+    // Being a "cheat" command, if in multiplayer, out. or if didn't specified the item to give
+    if (PR.globals_float[PR.globalvars.deathmatch] !== 0.0 || Cmd.argv.length <= 1) {
         return;
     }
-    var v = Q.atoi(Cmd.argv[2]);
-    if (t === 104) {
-        ent.v_float[PR.entvars.health] = v;
+
+    const itemType = Cmd.argv[1].charCodeAt(0);
+    const entity = SV.player;
+
+    if ((itemType >= 48) && (itemType <= 57)) {
+        if (COM.hipnotic !== true) {
+            if (itemType >= 50)
+                entity.v_float[PR.entvars.items] |= Def.it.shotgun << (itemType - 50);
+            return;
+        }
+        if (itemType === 54) {
+            if (Cmd.argv[1].charCodeAt(1) === 97)
+                entity.v_float[PR.entvars.items] |= Def.hit.proximity_gun;
+            else
+                entity.v_float[PR.entvars.items] |= Def.it.grenade_launcher;
+            return;
+        }
+        if (itemType === 57)
+            entity.v_float[PR.entvars.items] |= Def.hit.laser_cannon;
+        else if (itemType === 48)
+            entity.v_float[PR.entvars.items] |= Def.hit.mjolnir;
+        else if (itemType >= 50)
+            entity.v_float[PR.entvars.items] |= Def.it.shotgun << (itemType - 50);
+        return;
+    }
+
+    const itemAmount = Q.atoi(Cmd.argv[2]);
+    if (itemType === 104) {
+        entity.v_float[PR.entvars.health] = itemAmount;
         return;
     }
     if (COM.rogue !== true) {
-        switch (t) {
+        switch (itemType) {
             case 115:
-                ent.v_float[PR.entvars.ammo_shells] = v;
+                entity.v_float[PR.entvars.ammo_shells] = itemAmount;
                 return;
             case 110:
-                ent.v_float[PR.entvars.ammo_nails] = v;
+                entity.v_float[PR.entvars.ammo_nails] = itemAmount;
                 return;
             case 114:
-                ent.v_float[PR.entvars.ammo_rockets] = v;
+                entity.v_float[PR.entvars.ammo_rockets] = itemAmount;
                 return;
             case 99:
-                ent.v_float[PR.entvars.ammo_cells] = v;
+                entity.v_float[PR.entvars.ammo_cells] = itemAmount;
+                return;
         }
         return;
     }
-    switch (t) {
+    switch (itemType) {
         case 115:
             if (PR.entvars.ammo_shells1 != null)
-                ent.v_float[PR.entvars.ammo_shells1] = v;
-            ent.v_float[PR.entvars.ammo_shells] = v;
+                entity.v_float[PR.entvars.ammo_shells1] = itemAmount;
+            entity.v_float[PR.entvars.ammo_shells] = itemAmount;
             return;
         case 110:
             if (PR.entvars.ammo_nails1 != null) {
-                ent.v_float[PR.entvars.ammo_nails1] = v;
-                if (ent.v_float[PR.entvars.weapon] <= Def.it.lightning)
-                    ent.v_float[PR.entvars.ammo_nails] = v;
+                entity.v_float[PR.entvars.ammo_nails1] = itemAmount;
+                if (entity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+                    entity.v_float[PR.entvars.ammo_nails] = itemAmount;
             }
             return;
         case 108:
             if (PR.entvars.ammo_lava_nails != null) {
-                ent.v_float[PR.entvars.ammo_lava_nails] = v;
-                if (ent.v_float[PR.entvars.weapon] > Def.it.lightning)
-                    ent.v_float[PR.entvars.ammo_nails] = v;
+                entity.v_float[PR.entvars.ammo_lava_nails] = itemAmount;
+                if (entity.v_float[PR.entvars.weapon] > Def.it.lightning)
+                    entity.v_float[PR.entvars.ammo_nails] = itemAmount;
             }
             return;
         case 114:
             if (PR.entvars.ammo_rockets1 != null) {
-                ent.v_float[PR.entvars.ammo_rockets1] = v;
-                if (ent.v_float[PR.entvars.weapon] <= Def.it.lightning)
-                    ent.v_float[PR.entvars.ammo_rockets] = v;
+                entity.v_float[PR.entvars.ammo_rockets1] = itemAmount;
+                if (entity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+                    entity.v_float[PR.entvars.ammo_rockets] = itemAmount;
             }
             return;
         case 109:
             if (PR.entvars.ammo_multi_rockets != null) {
-                ent.v_float[PR.entvars.ammo_multi_rockets] = v;
-                if (ent.v_float[PR.entvars.weapon] > Def.it.lightning)
-                    ent.v_float[PR.entvars.ammo_rockets] = v;
+                entity.v_float[PR.entvars.ammo_multi_rockets] = itemAmount;
+                if (entity.v_float[PR.entvars.weapon] > Def.it.lightning)
+                    entity.v_float[PR.entvars.ammo_rockets] = itemAmount;
             }
             return;
         case 99:
             if (PR.entvars.ammo_cells1 != null) {
-                ent.v_float[PR.entvars.ammo_cells1] = v;
-                if (ent.v_float[PR.entvars.weapon] <= Def.it.lightning)
-                    ent.v_float[PR.entvars.ammo_cells] = v;
+                entity.v_float[PR.entvars.ammo_cells1] = itemAmount;
+                if (entity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+                    entity.v_float[PR.entvars.ammo_cells] = itemAmount;
             }
             return;
         case 112:
             if (PR.entvars.ammo_plasma != null) {
-                ent.v_float[PR.entvars.ammo_plasma] = v;
-                if (ent.v_float[PR.entvars.weapon] > Def.it.lightning)
-                    ent.v_float[PR.entvars.ammo_cells] = v;
+                entity.v_float[PR.entvars.ammo_plasma] = itemAmount;
+                if (entity.v_float[PR.entvars.weapon] > Def.it.lightning)
+                    entity.v_float[PR.entvars.ammo_cells] = itemAmount;
             }
+            return;
     }
-};
-
-Host.FindViewthing = function () {
-    var i, e;
-    if (SV.server.active === true) {
-        for (i = 0; i < SV.server.num_edicts; ++i) {
-            e = SV.server.edicts[i];
-            if (PR.GetString(e.v_int[PR.entvars.classname]) === 'viewthing')
-                return e;
-        }
-    }
-    Con.Print('No viewthing on map\n');
-};
-
-Host.Viewmodel_f = function () {
-    if (Cmd.argv.length !== 2)
-        return;
-    var e = Host.FindViewthing();
-    if (e == null)
-        return;
-    var m = Mod.ForName(Cmd.argv[1]);
-    if (m == null) {
-        Con.Print('Can\'t load ' + Cmd.argv[1] + '\n');
-        return;
-    }
-    ent.v_float[PR.entvars.frame] = 0.0;
-    CL.state.model_precache[ent.v_float[PR.entvars.modelindex] >> 0] = m;
-};
-
-Host.Viewframe_f = function () {
-    var e = Host.FindViewthing();
-    if (e == null)
-        return;
-    var m = CL.state.model_precache[ent.v_float[PR.entvars.modelindex] >> 0];
-    var f = Q.atoi(Cmd.argv[1]);
-    if (f >= m.frames.length)
-        f = m.frames.length - 1;
-    e.v_float[PR.entvars.frame] = f;
-};
-
-Host.Viewnext_f = function () {
-    var e = Host.FindViewthing();
-    if (e == null)
-        return;
-    var m = CL.state.model_precache[ent.v_float[PR.entvars.modelindex] >> 0];
-    var f = (ent.v_float[PR.entvars.frame] >> 0) + 1;
-    if (f >= m.frames.length)
-        f = m.frames.length - 1;
-    e.v_float[PR.entvars.frame] = f;
-    Con.Print('frame ' + f + ': ' + m.frames[f].name + '\n');
-};
-
-Host.Viewprev_f = function () {
-    var e = Host.FindViewthing();
-    if (e == null)
-        return;
-    var m = CL.state.model_precache[ent.v_float[PR.entvars.modelindex] >> 0];
-    var f = (ent.v_float[PR.entvars.frame] >> 0) - 1;
-    if (f < 0)
-        f = 0;
-    e.v_float[PR.entvars.frame] = f;
-    Con.Print('frame ' + f + ': ' + m.frames[f].name + '\n');
 };
 
 Host.Startdemos_f = function () {
-    Con.Print((Cmd.argv.length - 1) + ' demo(s) in loop\n');
+    Con.Print(`${Cmd.argv.length - 1} demo(s) in loop\n`);
     CL.cls.demos = [];
     var i;
     for (i = 1; i < Cmd.argv.length; ++i)
@@ -1247,6 +1221,8 @@ Host.Stopdemo_f = function () {
     CL.StopPlayback();
     CL.Disconnect();
 };
+
+Host.NOP = () => {};
 
 Host.InitCommands = function () {
     Cmd.AddCommand('status', Host.Status_f);
@@ -1279,9 +1255,9 @@ Host.InitCommands = function () {
     Cmd.AddCommand('startdemos', Host.Startdemos_f);
     Cmd.AddCommand('demos', Host.Demos_f);
     Cmd.AddCommand('stopdemo', Host.Stopdemo_f);
-    Cmd.AddCommand('viewmodel', Host.Viewmodel_f);
-    Cmd.AddCommand('viewframe', Host.Viewframe_f);
-    Cmd.AddCommand('viewnext', Host.Viewnext_f);
-    Cmd.AddCommand('viewprev', Host.Viewprev_f);
+    Cmd.AddCommand('viewmodel', Host.NOP);
+    Cmd.AddCommand('viewframe', Host.NOP);
+    Cmd.AddCommand('viewnext', Host.NOP);
+    Cmd.AddCommand('viewprev', Host.NOP);
     Cmd.AddCommand('mcache', Mod.Print);
 };

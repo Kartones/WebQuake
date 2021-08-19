@@ -1,3 +1,8 @@
+/**
+ * Handles reading and writing messages.
+ * Reads from NET.message, writes specified `sb` buffer
+ */
+
 MSG = {};
 
 MSG.WriteChar = function (sb, c) {

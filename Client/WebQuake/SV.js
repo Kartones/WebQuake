@@ -67,9 +67,15 @@ SV.Init = function () {
     SV.aim = Cvar.RegisterVariable('sv_aim', '0.93');
     SV.nostep = Cvar.RegisterVariable('sv_nostep', '0');
 
-    SV.nop = { data: new ArrayBuffer(4), cursize: 1 };
+    SV.nop = {
+        data: new ArrayBuffer(4),
+        cursize: 1
+    };
     (new Uint8Array(SV.nop.data))[0] = Protocol.svc.nop;
-    SV.reconnect = { data: new ArrayBuffer(128), cursize: 0 };
+    SV.reconnect = {
+        data: new ArrayBuffer(128),
+        cursize: 0
+    };
     MSG.WriteByte(SV.reconnect, Protocol.svc.stufftext);
     MSG.WriteString(SV.reconnect, 'reconnect\n');
 
@@ -174,8 +180,10 @@ SV.ConnectClient = function (clientnum) {
     if (SV.server.loadgame === true) {
         spawn_parms = [];
         if (client.spawn_parms == null) {
-            client.spawn_parms = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            client.spawn_parms = [
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+            ];
         }
         for (i = 0; i <= 15; ++i)
             spawn_parms[i] = client.spawn_parms[i];
@@ -191,12 +199,16 @@ SV.ConnectClient = function (clientnum) {
     client.edict.v_int[PR.entvars.netname] = PR.netnames + (clientnum << 5);
     SV.SetClientName(client, 'unconnected');
     client.colors = 0;
-    client.ping_times = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    client.ping_times = [
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    ];
     client.num_pings = 0;
     if (SV.server.loadgame !== true) {
-        client.spawn_parms = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+        client.spawn_parms = [
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        ];
     }
     client.old_frags = 0;
     if (SV.server.loadgame === true) {
@@ -1830,17 +1842,17 @@ SV.ReadClientMessage = function () {
         ret = NET.GetMessage(Host.client.netconnection);
         if (ret === -1) {
             Sys.Print('SV.ReadClientMessage: NET.GetMessage failed\n');
-            return;
+            return false;
         }
         if (ret === 0)
             return true;
         MSG.BeginReading();
         for (; ;) {
             if (Host.client.active !== true)
-                return;
+                return false;
             if (MSG.badread === true) {
                 Sys.Print('SV.ReadClientMessage: badread\n');
-                return;
+                return false;
             }
             cmd = MSG.ReadChar();
             if (cmd === -1) {
@@ -1866,29 +1878,31 @@ SV.ReadClientMessage = function () {
                 SV.ReadClientMove();
             else {
                 Sys.Print('SV.ReadClientMessage: unknown command char\n');
-                return;
+                return false;
             }
         }
     } while (ret === 1);
 };
 
 SV.RunClients = function () {
-    var i;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
+    for (let i = 0; i < SV.svs.maxclients; ++i) {
         Host.client = SV.svs.clients[i];
         if (Host.client.active !== true)
             continue;
+
         SV.player = Host.client.edict;
         if (SV.ReadClientMessage() !== true) {
             Host.DropClient();
             continue;
         }
+
         if (Host.client.spawned !== true) {
             Host.client.cmd.forwardmove = 0.0;
             Host.client.cmd.sidemove = 0.0;
             Host.client.cmd.upmove = 0.0;
             continue;
         }
+
         SV.ClientThink();
     }
 };

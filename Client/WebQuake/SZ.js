@@ -1,3 +1,4 @@
+
 SZ = {};
 
 SZ.GetSpace = function (buf, length) {
@@ -10,7 +11,7 @@ SZ.GetSpace = function (buf, length) {
         Con.Print('SZ.GetSpace: overflow\n');
         buf.cursize = 0;
     }
-    var cursize = buf.cursize;
+    const cursize = buf.cursize;
     buf.cursize += length;
     return cursize;
 };

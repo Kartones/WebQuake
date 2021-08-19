@@ -99,6 +99,7 @@ NET.Close = function (sock) {
     sock.disconnected = true;
 };
 
+
 NET.GetMessage = function (sock) {
     if (sock == null)
         return -1;
