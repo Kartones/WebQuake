@@ -1,3 +1,7 @@
+/**
+ * Keyboard input handling
+ */
+
 Key = {};
 
 // < 127 seem JS keycodes, remaining ones don't?

@@ -1,3 +1,8 @@
+/**
+ * Handling of Edicts (entities). Anything with behaviour, movement, etc. is an etntity/edict, including enemies, laser beams, rockets and the like.
+ * Edicts are put in a list (SV.server.edicts), and freed and their slots reused.
+ */
+
 ED = {};
 
 ED.ClearEdict = function (e) {
@@ -76,7 +81,7 @@ ED.FindGlobal = function (name) {
 };
 
 ED.FindFunction = function (name) {
-    var i;
+    let i;
     for (i = 0; i < PR.functions.length; ++i) {
         if (PR.GetString(PR.functions[i].name) === name)
             return i;

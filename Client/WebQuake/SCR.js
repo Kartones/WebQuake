@@ -1,3 +1,8 @@
+/**
+ * Screen related logic.
+ * Drawing UI elements (including the console), taking screenshots, loading text (image really).
+ */
+
 SCR = {};
 
 SCR.con_current = 0;

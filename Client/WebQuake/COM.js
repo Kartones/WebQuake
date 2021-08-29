@@ -1,3 +1,7 @@
+/**
+ * File I/O: pack files, textures, writing of files
+ */
+
 COM = {};
 
 COM.argv = [];

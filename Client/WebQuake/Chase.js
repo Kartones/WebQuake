@@ -1,3 +1,7 @@
+/**
+ * Player chase cam for multiplayer?
+ */
+
 Chase = {};
 
 Chase.Init = function () {

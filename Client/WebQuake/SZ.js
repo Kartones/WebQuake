@@ -1,3 +1,6 @@
+/**
+ * Remains of WinQuake's Zones & Hunk? As JS doesn't needs to allocate memory
+ */
 
 SZ = {};
 

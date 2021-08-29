@@ -1,3 +1,7 @@
+/**
+ * Models logic: Alias 3D models, sprites and brushes
+ */
+
 Mod = {};
 
 Mod.effects = {
@@ -903,10 +907,13 @@ Mod.LoadAliasModel = function (buffer) {
 
     Mod.loadmodel.type = Mod.type.alias;
     Mod.loadmodel.player = Mod.loadmodel.name === 'progs/player.mdl';
-    var model = new DataView(buffer);
-    var version = model.getUint32(4, true);
+
+    const model = new DataView(buffer);
+
+    const version = model.getUint32(4, true);
     if (version !== Mod.version.alias)
         Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.alias + ')');
+
     Mod.loadmodel.scale = [model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true)];
     Mod.loadmodel.scale_origin = [model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true)];
     Mod.loadmodel.boundingradius = model.getFloat32(32, true);

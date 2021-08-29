@@ -1,3 +1,7 @@
+/**
+ * Input logic. Stripped down to only mouse handling
+ */
+
 IN = {};
 
 IN.mouse_x = 0.0;

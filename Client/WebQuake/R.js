@@ -1,4 +1,30 @@
+/**
+ * Rendition module (renderer logic)
+ *
+ * Notes from https://fabiensanglard.net/quakeSource/quakeSourceRendition.php
+ */
+
 R = {};
+
+// number of frames rendered, used to mark BSP leafs to be rendered or not without an initial reset pass
+// e.g. node.markvisframe !== R.visframecount
+R.visframecount = 0;
+
+R.frustum = [{}, {}, {}, {}];
+
+R.vup = [];
+R.vpn = [];
+R.vright = [];
+
+R.refdef = {
+    vrect: {},
+    vieworg: [0.0, 0.0, 0.0],
+    viewangles: [0.0, 0.0, 0.0]
+};
+
+// Lighting related
+R.dlightframecount = 0;
+R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 
 // efrag
 
@@ -17,10 +43,6 @@ R.SplitEntityOnNode = function (node) {
 };
 
 // light
-
-R.dlightframecount = 0;
-
-R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 
 R.AnimateLight = function () {
     var j;
@@ -224,20 +246,6 @@ R.LightPoint = function (p) {
 };
 
 // main
-
-R.visframecount = 0;
-
-R.frustum = [{}, {}, {}, {}];
-
-R.vup = [];
-R.vpn = [];
-R.vright = [];
-
-R.refdef = {
-    vrect: {},
-    vieworg: [0.0, 0.0, 0.0],
-    viewangles: [0.0, 0.0, 0.0]
-};
 
 R.CullBox = function (mins, maxs) {
     if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[0]) === 2)

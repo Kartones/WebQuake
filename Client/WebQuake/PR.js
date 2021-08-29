@@ -798,7 +798,7 @@ PR.ExecuteProgram = function (fnum) {
 };
 
 PR.GetString = function (num) {
-    var string = [], c;
+    let string = [];
     for (; num < PR.strings.length; ++num) {
         if (PR.strings[num] === 0)
             break;
@@ -808,27 +808,25 @@ PR.GetString = function (num) {
 };
 
 PR.NewString = function (s, length) {
-    var ofs = PR.strings.length;
-    var i;
+    const ofs = PR.strings.length;
     if (s.length >= length) {
-        for (i = 0; i < (length - 1); ++i)
+        for (let i = 0; i < (length - 1); ++i)
             PR.strings[PR.strings.length] = s.charCodeAt(i);
         PR.strings[PR.strings.length] = 0;
         return ofs;
     }
-    for (i = 0; i < s.length; ++i)
+    for (let i = 0; i < s.length; ++i)
         PR.strings[PR.strings.length] = s.charCodeAt(i);
     length -= s.length;
-    for (i = 0; i < length; ++i)
+    for (let i = 0; i < length; ++i)
         PR.strings[PR.strings.length] = 0;
     return ofs;
 };
 
 PR.TempString = function (string) {
-    var i;
     if (string.length > 127)
         string = string.substring(0, 127);
-    for (i = 0; i < string.length; ++i)
+    for (let i = 0; i < string.length; ++i)
         PR.strings[PR.string_temp + i] = string.charCodeAt(i);
     PR.strings[PR.string_temp + string.length] = 0;
 };

@@ -1,3 +1,7 @@
+/**
+ * 2D Drawing logic, backed by WebGL.
+ */
+
 Draw = {};
 
 Draw.CharToConback = function (num, dest) {

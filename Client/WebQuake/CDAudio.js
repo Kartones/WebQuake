@@ -1,3 +1,7 @@
+/**
+ * Music logic. Legacy name, as WebQuake uses ogg music files if present
+ */
+
 CDAudio = {};
 
 CDAudio.known = [];

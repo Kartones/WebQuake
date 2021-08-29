@@ -1,7 +1,11 @@
+/**
+ * Some basic definitions
+ */
+
 Def = {};
 
 Def.webquake_version = 54;
-Def.timedate = 'Exe: 13:00:49 Aug 10 2017\n';
+Def.timedate = 'August 2021\n';
 
 Def.max_edicts = 600;
 

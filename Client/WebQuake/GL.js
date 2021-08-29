@@ -1,12 +1,24 @@
 /**
- * GLQuake's client code (adapted to WebGL)? (To be confirmed)
+ * GLQuake's client code (adapted to WebGL). Low-level drawing logic for GL.
  */
 
 GL = {};
 
+// WebGL window context, and WebGL functions.
+gl = null;
+
 GL.textures = [];
 GL.currenttextures = [];
 GL.programs = [];
+
+GL.ortho = [
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.00001, 0.0,
+    -1.0, 1.0, 0.0, 1.0
+];
+
+GL.identity = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
 
 GL.Bind = function (target, texnum, flushStream) {
     if (GL.currenttextures[target] !== texnum) {
@@ -50,13 +62,6 @@ GL.TextureMode_f = function () {
         gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, GL.filter_max);
     }
 };
-
-GL.ortho = [
-    0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.0, 0.0,
-    0.0, 0.0, 0.00001, 0.0,
-    -1.0, 1.0, 0.0, 1.0
-];
 
 GL.Set2D = function () {
     gl.viewport(0, 0, (VID.width * SCR.devicePixelRatio) >> 0, (VID.height * SCR.devicePixelRatio) >> 0);
@@ -330,8 +335,6 @@ GL.UnbindProgram = function () {
         gl.disableVertexAttribArray(GL.currentProgram.attribs[i].location);
     GL.currentProgram = null;
 };
-
-GL.identity = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
 
 GL.RotationMatrix = function (pitch, yaw, roll) {
     pitch *= Math.PI / -180.0;

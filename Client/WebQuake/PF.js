@@ -1,3 +1,7 @@
+/**
+ * Program Functions?
+ */
+
 PF = {};
 
 PF.VarString = function (first) {

@@ -1,3 +1,7 @@
+/**
+ * Menus logic, drawing and input handling.
+ */
+
 M = {};
 
 M.state =

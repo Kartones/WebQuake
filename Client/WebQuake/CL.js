@@ -13,8 +13,7 @@ CL.active = {
     connected: 2
 };
 
-
-// Main
+// Main state
 CL.cls = {
     state: 0,
     spawnparms: '',
@@ -26,6 +25,8 @@ CL.cls = {
 };
 CL.static_entities = [];
 CL.visedicts = [];
+
+// See below ClearState() for more state properties
 
 // Input related
 CL.kbutton = {
@@ -100,6 +101,81 @@ CL.lastmsg = 0.0;
 // Temporary entities ("tent") related
 
 CL.temp_entities = [];
+
+
+CL.ClearState = function () {
+    if (SV.server.active !== true) {
+        Con.DPrint('Clearing memory\n');
+        Mod.ClearAll();
+        CL.cls.signon = 0;
+    }
+
+    CL.state = {
+        movemessages: 0,
+        cmd: {
+            forwardmove: 0.0,
+            sidemove: 0.0,
+            upmove: 0.0
+        },
+        stats: [
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0
+        ],
+        items: 0,
+        item_gettime: [
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        ],
+        faceanimtime: 0.0,
+        cshifts: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]],
+        mviewangles: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        viewangles: [0.0, 0.0, 0.0],
+        mvelocity: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        velocity: [0.0, 0.0, 0.0],
+        punchangle: [0.0, 0.0, 0.0],
+        idealpitch: 0.0,
+        pitchvel: 0.0,
+        driftmove: 0.0,
+        laststop: 0.0,
+        crouch: 0.0,
+        intermission: 0,
+        completed_time: 0,
+        mtime: [0.0, 0.0],
+        time: 0.0,
+        oldtime: 0.0,
+        last_received_message: 0.0,
+        viewentity: 0,
+        num_statics: 0,
+        viewent: {
+            num: -1,
+            origin: [0.0, 0.0, 0.0],
+            angles: [0.0, 0.0, 0.0],
+            skinnum: 0
+        },
+        cdtrack: 0,
+        looptrack: 0
+    };
+
+    CL.cls.message.cursize = 0;
+
+    CL.entities = [];
+
+    CL.dlights = [];
+    for (let i = 0; i <= 31; ++i)
+        CL.dlights[i] = { radius: 0.0, die: 0.0 };
+
+    CL.lightstyle = [];
+    for (let i = 0; i <= 63; ++i)
+        CL.lightstyle[i] = '';
+
+    CL.beams = [];
+    for (let i = 0; i <= 23; ++i)
+        CL.beams[i] = { endtime: 0.0 };
+};
 
 // demo
 
@@ -537,79 +613,6 @@ CL.Rcon_f = function () {
     xhr.send();
 };
 
-CL.ClearState = function () {
-    if (SV.server.active !== true) {
-        Con.DPrint('Clearing memory\n');
-        Mod.ClearAll();
-        CL.cls.signon = 0;
-    }
-
-    CL.state = {
-        movemessages: 0,
-        cmd: {
-            forwardmove: 0.0,
-            sidemove: 0.0,
-            upmove: 0.0
-        },
-        stats: [
-            0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0
-        ],
-        items: 0,
-        item_gettime: [
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-        ],
-        faceanimtime: 0.0,
-        cshifts: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]],
-        mviewangles: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        viewangles: [0.0, 0.0, 0.0],
-        mvelocity: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        velocity: [0.0, 0.0, 0.0],
-        punchangle: [0.0, 0.0, 0.0],
-        idealpitch: 0.0,
-        pitchvel: 0.0,
-        driftmove: 0.0,
-        laststop: 0.0,
-        crouch: 0.0,
-        intermission: 0,
-        completed_time: 0,
-        mtime: [0.0, 0.0],
-        time: 0.0,
-        oldtime: 0.0,
-        last_received_message: 0.0,
-        viewentity: 0,
-        num_statics: 0,
-        viewent: {
-            num: -1,
-            origin: [0.0, 0.0, 0.0],
-            angles: [0.0, 0.0, 0.0],
-            skinnum: 0
-        },
-        cdtrack: 0,
-        looptrack: 0
-    };
-
-    CL.cls.message.cursize = 0;
-
-    CL.entities = [];
-
-    CL.dlights = [];
-    for (let i = 0; i <= 31; ++i)
-        CL.dlights[i] = { radius: 0.0, die: 0.0 };
-
-    CL.lightstyle = [];
-    for (let i = 0; i <= 63; ++i)
-        CL.lightstyle[i] = '';
-
-    CL.beams = [];
-    for (let i = 0; i <= 23; ++i)
-        CL.beams[i] = { endtime: 0.0 };
-};
 
 CL.Disconnect = function () {
     S.StopAllSounds();

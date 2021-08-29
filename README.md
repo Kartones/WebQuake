@@ -56,7 +56,7 @@ docker stop webquake-server
 
 ## Development
 
-See [DEVELOPMENT.md](DEVELOPMENT).
+See [DEVELOPMENT](DEVELOPMENT.md).
 
 ## Old instructions
 
