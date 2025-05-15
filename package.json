@@ -1,0 +1,25 @@
+{
+  "name": "webquake",
+  "version": "1.0.0",
+  "description": "**WebQuake** is an HTML5 WebGL port of the game Quake by id Software.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kartones-forks/WebQuake.git"
+  },
+  "author": "Kartones",
+  "license": "GNU",
+  "bugs": {
+    "url": "https://github.com/kartones-forks/WebQuake/issues"
+  },
+  "homepage": "https://github.com/kartones-forks/WebQuake#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-import": "^2.24.2"
+  }
+}

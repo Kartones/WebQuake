@@ -1,4 +1,7 @@
 id1/
 !id1/autoexec.cfg
 node_modules/
+
+# No need for this project
 package-lock.json
+pnpm-lock.yaml

@@ -1,6 +1,8 @@
 FROM node:alpine
 WORKDIR /usr/src/app
 
+RUN apk add --no-cache python3 make g++
+
 COPY Server .
 
 COPY id1 ./id1

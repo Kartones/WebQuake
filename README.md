@@ -5,6 +5,8 @@
 This fork is based on the original ([WebQuake](https://github.com/Triang3l/WebQuake)), but includes also:
 - Docker support (based on [@AkashV22/docker-web-quake](https://github.com/AkashV22/docker-web-quake))
 - [WinQuake connection bugfix PR](https://github.com/Triang3l/WebQuake/pull/39/files)
+- `eslint`ed code (WIP)
+- code comments (WIP)
 
 # Installing and running
 
@@ -16,21 +18,21 @@ First of all, copy Quake's `id1` folder into this repo's root (don't worry, it's
 
 ### Client
 
-Build (from `/Client` folder):
+Build:
 ```bash
 docker build -f Dockerfile.client -t webquake .
 ```
 
-And run:
+And run  (from `/Client` folder):
 ```bash
-docker run -p 8080:80 webquake
+docker run --name webquake-client -p 8080:80 webquake
 ```
 
 Available at `http://localhost:8080`.
 
 To stop:
 ```bash
-docker stop webquake
+docker stop webquake-client
 ```
 
 ### Server
@@ -42,7 +44,7 @@ docker build -f Dockerfile.server -t webquake-server .
 
 And run:
 ```bash
-docker run -p 26000:80/tcp -p 26000:80/udp webquake-server
+docker run --name webquake-server -p 26000:80/tcp -p 26000:80/udp webquake-server
 ```
 
 Available at `http://localhost:26000`. 
