@@ -25,7 +25,7 @@ docker build -f Dockerfile.client -t webquake .
 
 And run  (from `/Client` folder):
 ```bash
-docker run --name webquake-client -p 8080:80 webquake
+docker run --name webquake-client --rm -p 8080:80 webquake
 ```
 
 Available at `http://localhost:8080`.
@@ -44,7 +44,7 @@ docker build -f Dockerfile.server -t webquake-server .
 
 And run:
 ```bash
-docker run --name webquake-server -p 26000:80/tcp -p 26000:80/udp webquake-server
+docker run --name webquake-server --rm -p 26000:80/tcp -p 26000:80/udp webquake-server
 ```
 
 Available at `http://localhost:26000`. 
