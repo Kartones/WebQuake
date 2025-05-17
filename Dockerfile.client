@@ -1,6 +1,6 @@
 FROM nginx:mainline-alpine
 
-COPY Client /usr/share/nginx/html
+COPY client /usr/share/nginx/html
 
 COPY id1 /usr/share/nginx/html/id1/
 

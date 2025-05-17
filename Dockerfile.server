@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 
 RUN apk add --no-cache python3 make g++
 
-COPY Server .
+COPY server .
 
 COPY id1 ./id1
 
