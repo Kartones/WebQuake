@@ -1,5 +1,5 @@
 // Host command handlers
-const HostCommands = {
+HostCommands = {
   Status_f: function () {
     let printFunc;
     if (Cmd.client !== true) {
@@ -606,5 +606,3 @@ const HostCommands = {
     Cmd.AddCommand("mcache", Mod.Print);
   },
 };
-
-module.exports = HostCommands;

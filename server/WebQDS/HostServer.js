@@ -1,5 +1,5 @@
 // Host server-related functions
-const HostServer = {
+HostServer = {
   FindMaxClients: function () {
     const maxPlayersArgIndex = COM.CheckParm("-maxplayers");
     SV.svs.maxclients = 8;
@@ -143,5 +143,3 @@ const HostServer = {
     }
   },
 };
-
-module.exports = HostServer;

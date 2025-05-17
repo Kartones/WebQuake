@@ -1,5 +1,5 @@
 // Host client communication functions
-const HostClient = {
+HostClient = {
   ClientPrint: function (message) {
     MSG.WriteByte(Host.client.message, Protocol.svc.print);
     MSG.WriteString(Host.client.message, message);
@@ -23,5 +23,3 @@ const HostClient = {
     Sys.Error(errorMessage);
   },
 };
-
-module.exports = HostClient;

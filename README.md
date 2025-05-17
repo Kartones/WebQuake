@@ -35,6 +35,11 @@ To stop:
 docker stop webquake-client
 ```
 
+Can be also run directly via:
+```bash
+node Server/WebQDS.js
+```
+
 ### Server
 
 Build:

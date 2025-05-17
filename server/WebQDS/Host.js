@@ -1,4 +1,8 @@
-const Host = {
+require("./HostClient.js");
+require("./HostServer.js");
+require("./HostCommands.js");
+
+Host = {
   framecount: 0,
   inerror: false,
   realtime: 0.0,
