@@ -117,8 +117,10 @@ Then, you have 4 ways to execute server commands:
 
 * In the game, when not connected, in the console, type `rcon_address ip:port` (without ws://), `rcon_password server_RCON_password` (surround the password with quotes if you have spaces in it), and then execute the commands by typing `rcon your_command_here`.
 * In the game, when connected to the server, do the same as in the previous way except for settings `rcon_address`.
-* Go to the server IP in the browser (for example, if your server is at `ws://192.168.0.2:26000`, go to `http://192.168.0.2:26000`). On the Rcon line, enter your command in the left field and the password in the right field and press Send.
-* Go to `http://ip:port/rcon/your_command_here` in the browser. Login as "quake" with your RCON password.
+* Go to the server IP in the browser (for example, if your server is at `ws://192.168.0.2:26000`, go to `http://192.168.0.2:26000`). On the Rcon line, enter your command in the left field and the password in the right field (default is `quake`) and press Send.
+
+
+* Go to `http://ip:port/rcon/your_command_here` in the browser. Login as "`quake`" with your RCON password.
 
 ## Server info API
 
@@ -148,8 +150,7 @@ The port has been tested on the following browsers (results from 2013):
 * Chrome (Windows) — **Very good** — no "loading" image.
 * Firefox (Android) — **Okay** — very low performance (canvas is locked at 12 FPS), no mouse support. Keypresses are incorrect, not tested with Windows keyboard.
 * Chrome (Android) — **Not Good** — no "loading" image, sound is broken (launch with `?-nosound -nocdaudio`), no mouse. Requires Windows-compatible keyboard for Esc and F1-F12 keys.
-* Opera (Windows) — **Not Good** — low performance, nothing is drawn in water (type `r_waterwarp 0` in the console), no mouse.
-* Internet Explorer (Windows) — **Unsupported** — bad TypedArray support, but likely many more issues.
+
 
 Mouse support is currently available only on Chrome and Firefox. Stereo positional audio is supported on Chrome and Safari.
 

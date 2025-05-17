@@ -71,6 +71,9 @@ Host = {
     Host.framerate = Cvar.RegisterVariable("host_framerate", "0");
     Host.speeds = Cvar.RegisterVariable("host_speeds", "0");
     Host.rcon_password = Cvar.RegisterVariable("rcon_password", "");
+    Sys.Print(
+      `rcon_password: ${Host.rcon_password.value} ${Host.rcon_password.string} ${Host.rcon_password.string.length}\n`
+    );
     Host.ticrate = Cvar.RegisterVariable("sys_ticrate", "0.05");
     Host.serverprofile = Cvar.RegisterVariable("serverprofile", "0");
     Host.fraglimit = Cvar.RegisterVariable("fraglimit", "0", false, true);
