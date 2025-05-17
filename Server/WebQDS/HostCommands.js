@@ -1,49 +1,53 @@
 // Host command handlers
-HostCommands = {
+const HostCommands = {
   Status_f: function () {
-    var print;
+    let printFunc;
     if (Cmd.client !== true) {
       if (SV.server.active !== true) return;
-      print = Con.Print;
-    } else print = Host.ClientPrint;
-    print("host:    " + NET.hostname.string + "\n");
-    print("version: 1.09\n");
-    print(
+      printFunc = Con.Print;
+    } else printFunc = Host.ClientPrint;
+    printFunc("host:    " + NET.hostname.string + "\n");
+    printFunc("version: 1.09\n");
+    printFunc(
       "map:     " + PR.GetString(PR.globals_int[PR.globalvars.mapname]) + "\n"
     );
-    print(
+    printFunc(
       "players: " +
         NET.activeconnections +
         " active (" +
         SV.svs.maxclients +
         " max)\n\n"
     );
-    var i, client, str, frags, hours, minutes, seconds;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
+    let clientIndex,
+      client,
+      formattedOutput,
+      formattedFrags,
+      hours,
+      minutes,
+      seconds;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      client = SV.svs.clients[clientIndex];
       if (client.active !== true) continue;
-      frags = client.edict.v_float[PR.entvars.frags].toFixed(0);
-      if (frags.length === 1) frags = "  " + frags;
-      else if (frags.length === 2) frags = " " + frags;
+      formattedFrags = client.edict.v_float[PR.entvars.frags].toFixed(0);
+      if (formattedFrags.length === 1) formattedFrags = "  " + formattedFrags;
+      else if (formattedFrags.length === 2)
+        formattedFrags = " " + formattedFrags;
       seconds = (NET.time - client.netconnection.connecttime) >> 0;
+      hours = 0;
       minutes = (seconds / 60) >> 0;
       if (minutes !== 0) {
         seconds -= minutes * 60;
         hours = (minutes / 60) >> 0;
         if (hours !== 0) minutes -= hours * 60;
-      } else hours = 0;
-      str = "#" + (i + 1) + " ";
-      if (i <= 8) str += " ";
-      str += SV.GetClientName(client);
-      for (; str.length <= 21; ) str += " ";
-      str += frags + "  ";
-      if (hours <= 9) str += " ";
-      str += hours + ":";
-      if (minutes <= 9) str += "0";
-      str += minutes + ":";
-      if (seconds <= 9) str += "0";
-      print(str + seconds + "\n");
-      print("   " + client.netconnection.address + "\n");
+      }
+      formattedOutput = `#${clientIndex + 1}${clientIndex <= 8 ? " " : ""}`;
+      formattedOutput += SV.GetClientName(client);
+      for (; formattedOutput.length <= 21; ) formattedOutput += " ";
+      formattedOutput += `${formattedFrags}  ${hours <= 9 ? " " : ""}${hours}:${
+        minutes <= 9 ? "0" : ""
+      }${minutes}:${seconds <= 9 ? "0" : ""}${seconds}\n`;
+      printFunc(formattedOutput);
+      printFunc(`   ${client.netconnection.address}\n`);
     }
   },
 
@@ -98,17 +102,18 @@ HostCommands = {
   Ping_f: function () {
     if (Cmd.client !== true) return;
     Host.ClientPrint("Client ping times:\n");
-    var i, client, total, j;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
+    let clientIndex, client, totalPing, pingIndex;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      client = SV.svs.clients[clientIndex];
       if (client.active !== true) continue;
-      total = 0;
-      for (j = 0; j <= 15; ++j) total += client.ping_times[j];
-      total = (total * 62.5).toFixed(0);
-      if (total.length === 1) total = "   " + total;
-      else if (total.length === 2) total = "  " + total;
-      else if (total.length === 3) total = " " + total;
-      Host.ClientPrint(total + " " + SV.GetClientName(client) + "\n");
+      totalPing = 0;
+      for (pingIndex = 0; pingIndex <= 15; ++pingIndex)
+        totalPing += client.ping_times[pingIndex];
+      totalPing = (totalPing * 62.5).toFixed(0);
+      if (totalPing.length === 1) totalPing = "   " + totalPing;
+      else if (totalPing.length === 2) totalPing = "  " + totalPing;
+      else if (totalPing.length === 3) totalPing = " " + totalPing;
+      Host.ClientPrint(totalPing + " " + SV.GetClientName(client) + "\n");
     }
   },
 
@@ -144,16 +149,16 @@ HostCommands = {
   Name_f: function () {
     if (Cmd.argv.length <= 1 || Cmd.client !== true) return;
 
-    var newName;
+    let newName;
     if (Cmd.argv.length === 2) newName = Cmd.argv[1].substring(0, 15);
     else newName = Cmd.args.substring(0, 15);
 
-    var name = SV.GetClientName(Host.client);
+    const oldName = SV.GetClientName(Host.client);
     SV.SetClientName(Host.client, newName);
-    var msg = SV.server.reliable_datagram;
-    MSG.WriteByte(msg, Protocol.svc.updatename);
-    MSG.WriteByte(msg, Host.client.num);
-    MSG.WriteString(msg, newName);
+    const datagram = SV.server.reliable_datagram;
+    MSG.WriteByte(datagram, Protocol.svc.updatename);
+    MSG.WriteByte(datagram, Host.client.num);
+    MSG.WriteString(datagram, newName);
   },
 
   Version_f: function () {
@@ -164,32 +169,39 @@ HostCommands = {
   Say: function (teamonly) {
     if (SV.server.active !== true) return;
     if (Cmd.argv.length <= 1) return;
-    var save = Host.client;
-    var p = Cmd.args;
-    if (p.charCodeAt(0) === 34) p = p.substring(1, p.length - 1);
-    if (Cmd.client === true) text = "\x01" + SV.GetClientName(save) + ": ";
+    const savedClient = Host.client;
+    let messageText = Cmd.args;
+    if (messageText.charCodeAt(0) === 34)
+      messageText = messageText.substring(1, messageText.length - 1);
+
+    let formattedMessage;
+    if (Cmd.client === true)
+      formattedMessage = "\x01" + SV.GetClientName(savedClient) + ": ";
     else {
-      text = "\x01<" + NET.hostname.string + "> ";
+      formattedMessage = "\x01<" + NET.hostname.string + "> ";
       teamonly = false;
     }
-    var i = 62 - text.length;
-    if (p.length > i) p = p.substring(0, i);
-    text += p + "\n";
-    var client;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
+
+    const maxLength = 62 - formattedMessage.length;
+    if (messageText.length > maxLength)
+      messageText = messageText.substring(0, maxLength);
+    formattedMessage += messageText + "\n";
+
+    let clientIndex, client;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      client = SV.svs.clients[clientIndex];
       if (client.active !== true || client.spawned !== true) continue;
       if (
         Host.teamplay.value !== 0 &&
         teamonly === true &&
-        client.v_float[PR.entvars.team] !== save.v_float[PR.entvars.team]
+        client.v_float[PR.entvars.team] !== savedClient.v_float[PR.entvars.team]
       )
         continue;
       Host.client = client;
-      Host.ClientPrint(text);
+      Host.ClientPrint(formattedMessage);
     }
-    Host.client = save;
-    Sys.Print(text.substring(1));
+    Host.client = savedClient;
+    Sys.Print(formattedMessage.substring(1));
   },
 
   Say_Team_f: function () {
@@ -199,45 +211,49 @@ HostCommands = {
   Tell_f: function () {
     if (Cmd.client !== true) return;
     if (Cmd.argv.length <= 2) return;
-    var text = SV.GetClientName(Host.client) + ": ";
-    var p = Cmd.args;
-    if (p.charCodeAt(0) === 34) p = p.substring(1, p.length - 1);
-    var i = 62 - text.length;
-    if (p.length > i) p = p.substring(0, i);
-    text += p + "\n";
-    var save = Host.client,
-      client;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
+    let messageText = SV.GetClientName(Host.client) + ": ";
+    let messageContent = Cmd.args;
+    if (messageContent.charCodeAt(0) === 34)
+      messageContent = messageContent.substring(1, messageContent.length - 1);
+    const maxLength = 62 - messageText.length;
+    if (messageContent.length > maxLength)
+      messageContent = messageContent.substring(0, maxLength);
+    messageText += messageContent + "\n";
+
+    const savedClient = Host.client;
+    let clientIndex, client;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      client = SV.svs.clients[clientIndex];
       if (client.active !== true || client.spawned !== true) continue;
       if (SV.GetClientName(client).toLowerCase() !== Cmd.argv[1].toLowerCase())
         continue;
       Host.client = client;
-      Host.ClientPrint(text);
+      Host.ClientPrint(messageText);
       break;
     }
-    Host.client = save;
+    Host.client = savedClient;
   },
 
   Color_f: function () {
     if (Cmd.argv.length <= 1 || Cmd.client !== true) return;
 
-    var top, bottom;
-    if (Cmd.argv.length === 2) top = bottom = (Q.atoi(Cmd.argv[1]) & 15) >>> 0;
+    let topColor, bottomColor;
+    if (Cmd.argv.length === 2)
+      topColor = bottomColor = (Q.atoi(Cmd.argv[1]) & 15) >>> 0;
     else {
-      top = (Q.atoi(Cmd.argv[1]) & 15) >>> 0;
-      bottom = (Q.atoi(Cmd.argv[2]) & 15) >>> 0;
+      topColor = (Q.atoi(Cmd.argv[1]) & 15) >>> 0;
+      bottomColor = (Q.atoi(Cmd.argv[2]) & 15) >>> 0;
     }
-    if (top >= 14) top = 13;
-    if (bottom >= 14) bottom = 13;
-    var playercolor = (top << 4) + bottom;
+    if (topColor >= 14) topColor = 13;
+    if (bottomColor >= 14) bottomColor = 13;
+    const playerColor = (topColor << 4) + bottomColor;
 
-    Host.client.colors = playercolor;
-    Host.client.edict.v_float[PR.entvars.team] = bottom + 1;
-    var msg = SV.server.reliable_datagram;
-    MSG.WriteByte(msg, Protocol.svc.updatecolors);
-    MSG.WriteByte(msg, Host.client.num);
-    MSG.WriteByte(msg, playercolor);
+    Host.client.colors = playerColor;
+    Host.client.edict.v_float[PR.entvars.team] = bottomColor + 1;
+    const datagram = SV.server.reliable_datagram;
+    MSG.WriteByte(datagram, Protocol.svc.updatecolors);
+    MSG.WriteByte(datagram, Host.client.num);
+    MSG.WriteByte(datagram, playerColor);
   },
 
   Kill_f: function () {
@@ -276,19 +292,19 @@ HostCommands = {
       Con.Print("prespawn is not valid from the console\n");
       return;
     }
-    var client = Host.client;
-    if (client.spawned === true) {
+    const currentClient = Host.client;
+    if (currentClient.spawned === true) {
       Con.Print("prespawn not valid -- allready spawned\n");
       return;
     }
     SZ.Write(
-      client.message,
+      currentClient.message,
       new Uint8Array(SV.server.signon.data),
       SV.server.signon.cursize
     );
-    MSG.WriteByte(client.message, Protocol.svc.signonnum);
-    MSG.WriteByte(client.message, 2);
-    client.sendsignon = true;
+    MSG.WriteByte(currentClient.message, Protocol.svc.signonnum);
+    MSG.WriteByte(currentClient.message, 2);
+    currentClient.sendsignon = true;
   },
 
   Spawn_f: function () {
@@ -296,69 +312,91 @@ HostCommands = {
       Con.Print("spawn is not valid from the console\n");
       return;
     }
-    var client = Host.client;
-    if (client.spawned === true) {
+    const currentClient = Host.client;
+    if (currentClient.spawned === true) {
       Con.Print("Spawn not valid -- allready spawned\n");
       return;
     }
 
-    var i;
+    let entityIndex;
+    let clientEntity = currentClient.edict;
 
-    var ent = client.edict;
-    for (i = 0; i < PR.entityfields; ++i) ent.v_int[i] = 0;
-    ent.v_float[PR.entvars.colormap] = ent.num;
-    ent.v_float[PR.entvars.team] = (client.colors & 15) + 1;
-    ent.v_int[PR.entvars.netname] = PR.netnames + (client.num << 5);
-    for (i = 0; i <= 15; ++i)
-      PR.globals_float[PR.globalvars.parms + i] = client.spawn_parms[i];
+    for (entityIndex = 0; entityIndex < PR.entityfields; ++entityIndex)
+      clientEntity.v_int[entityIndex] = 0;
+
+    clientEntity.v_float[PR.entvars.colormap] = clientEntity.num;
+    clientEntity.v_float[PR.entvars.team] = (currentClient.colors & 15) + 1;
+    clientEntity.v_int[PR.entvars.netname] =
+      PR.netnames + (currentClient.num << 5);
+
+    for (entityIndex = 0; entityIndex <= 15; ++entityIndex)
+      PR.globals_float[PR.globalvars.parms + entityIndex] =
+        currentClient.spawn_parms[entityIndex];
+
     PR.globals_float[PR.globalvars.time] = SV.server.time;
-    PR.globals_int[PR.globalvars.self] = ent.num;
+    PR.globals_int[PR.globalvars.self] = clientEntity.num;
     PR.ExecuteProgram(PR.globals_int[PR.globalvars.ClientConnect]);
-    if (Sys.FloatTime() - client.netconnection.connecttime <= SV.server.time)
-      Sys.Print(SV.GetClientName(client) + " entered the game\n");
+
+    if (
+      Sys.FloatTime() - currentClient.netconnection.connecttime <=
+      SV.server.time
+    )
+      Sys.Print(SV.GetClientName(currentClient) + " entered the game\n");
+
     PR.ExecuteProgram(PR.globals_int[PR.globalvars.PutClientInServer]);
 
-    var message = client.message;
-    message.cursize = 0;
-    MSG.WriteByte(message, Protocol.svc.time);
-    MSG.WriteFloat(message, SV.server.time);
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
-      MSG.WriteByte(message, Protocol.svc.updatename);
-      MSG.WriteByte(message, i);
-      MSG.WriteString(message, SV.GetClientName(client));
-      MSG.WriteByte(message, Protocol.svc.updatefrags);
-      MSG.WriteByte(message, i);
-      MSG.WriteShort(message, client.old_frags);
-      MSG.WriteByte(message, Protocol.svc.updatecolors);
-      MSG.WriteByte(message, i);
-      MSG.WriteByte(message, client.colors);
+    const clientMessage = currentClient.message;
+    clientMessage.cursize = 0;
+    MSG.WriteByte(clientMessage, Protocol.svc.time);
+    MSG.WriteFloat(clientMessage, SV.server.time);
+
+    let clientIndex, iteratedClient;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      iteratedClient = SV.svs.clients[clientIndex];
+      MSG.WriteByte(clientMessage, Protocol.svc.updatename);
+      MSG.WriteByte(clientMessage, clientIndex);
+      MSG.WriteString(clientMessage, SV.GetClientName(iteratedClient));
+      MSG.WriteByte(clientMessage, Protocol.svc.updatefrags);
+      MSG.WriteByte(clientMessage, clientIndex);
+      MSG.WriteShort(clientMessage, iteratedClient.old_frags);
+      MSG.WriteByte(clientMessage, Protocol.svc.updatecolors);
+      MSG.WriteByte(clientMessage, clientIndex);
+      MSG.WriteByte(clientMessage, iteratedClient.colors);
     }
-    for (i = 0; i <= 63; ++i) {
-      MSG.WriteByte(message, Protocol.svc.lightstyle);
-      MSG.WriteByte(message, i);
-      MSG.WriteString(message, SV.server.lightstyles[i]);
+
+    for (let lightstyleIndex = 0; lightstyleIndex <= 63; ++lightstyleIndex) {
+      MSG.WriteByte(clientMessage, Protocol.svc.lightstyle);
+      MSG.WriteByte(clientMessage, lightstyleIndex);
+      MSG.WriteString(clientMessage, SV.server.lightstyles[lightstyleIndex]);
     }
-    MSG.WriteByte(message, Protocol.svc.updatestat);
-    MSG.WriteByte(message, Def.stat.totalsecrets);
-    MSG.WriteLong(message, PR.globals_float[PR.globalvars.total_secrets]);
-    MSG.WriteByte(message, Protocol.svc.updatestat);
-    MSG.WriteByte(message, Def.stat.totalmonsters);
-    MSG.WriteLong(message, PR.globals_float[PR.globalvars.total_monsters]);
-    MSG.WriteByte(message, Protocol.svc.updatestat);
-    MSG.WriteByte(message, Def.stat.secrets);
-    MSG.WriteLong(message, PR.globals_float[PR.globalvars.found_secrets]);
-    MSG.WriteByte(message, Protocol.svc.updatestat);
-    MSG.WriteByte(message, Def.stat.monsters);
-    MSG.WriteLong(message, PR.globals_float[PR.globalvars.killed_monsters]);
-    MSG.WriteByte(message, Protocol.svc.setangle);
-    ent = SV.server.edicts[1 + Host.client.num];
-    MSG.WriteAngle(message, ent.v_float[PR.entvars.angles]);
-    MSG.WriteAngle(message, ent.v_float[PR.entvars.angles1]);
-    MSG.WriteAngle(message, 0.0);
-    SV.WriteClientdataToMessage(ent, message);
-    MSG.WriteByte(message, Protocol.svc.signonnum);
-    MSG.WriteByte(message, 3);
+
+    MSG.WriteByte(clientMessage, Protocol.svc.updatestat);
+    MSG.WriteByte(clientMessage, Def.stat.totalsecrets);
+    MSG.WriteLong(clientMessage, PR.globals_float[PR.globalvars.total_secrets]);
+    MSG.WriteByte(clientMessage, Protocol.svc.updatestat);
+    MSG.WriteByte(clientMessage, Def.stat.totalmonsters);
+    MSG.WriteLong(
+      clientMessage,
+      PR.globals_float[PR.globalvars.total_monsters]
+    );
+    MSG.WriteByte(clientMessage, Protocol.svc.updatestat);
+    MSG.WriteByte(clientMessage, Def.stat.secrets);
+    MSG.WriteLong(clientMessage, PR.globals_float[PR.globalvars.found_secrets]);
+    MSG.WriteByte(clientMessage, Protocol.svc.updatestat);
+    MSG.WriteByte(clientMessage, Def.stat.monsters);
+    MSG.WriteLong(
+      clientMessage,
+      PR.globals_float[PR.globalvars.killed_monsters]
+    );
+    MSG.WriteByte(clientMessage, Protocol.svc.setangle);
+
+    const playerEntity = SV.server.edicts[1 + Host.client.num];
+    MSG.WriteAngle(clientMessage, playerEntity.v_float[PR.entvars.angles]);
+    MSG.WriteAngle(clientMessage, playerEntity.v_float[PR.entvars.angles1]);
+    MSG.WriteAngle(clientMessage, 0.0);
+    SV.WriteClientdataToMessage(playerEntity, clientMessage);
+    MSG.WriteByte(clientMessage, Protocol.svc.signonnum);
+    MSG.WriteByte(clientMessage, 3);
     Host.client.sendsignon = true;
   },
 
@@ -377,17 +415,17 @@ HostCommands = {
       PR.globals_float[PR.globalvars.deathmatch] !== 0.0
     )
       return;
-    var save = Host.client;
-    var i, byNumber;
+    const savedClient = Host.client;
+    let clientIndex, isKickByNumber;
     if (Cmd.argv.length >= 3 && Cmd.argv[1] === "#") {
-      i = Q.atoi(Cmd.argv[2]) - 1;
-      if (i < 0 || i >= SV.svs.maxclients) return;
-      if (SV.svs.clients[i].active !== true) return;
-      Host.client = SV.svs.clients[i];
-      byNumber = true;
+      clientIndex = Q.atoi(Cmd.argv[2]) - 1;
+      if (clientIndex < 0 || clientIndex >= SV.svs.maxclients) return;
+      if (SV.svs.clients[clientIndex].active !== true) return;
+      Host.client = SV.svs.clients[clientIndex];
+      isKickByNumber = true;
     } else {
-      for (i = 0; i < SV.svs.maxclients; ++i) {
-        Host.client = SV.svs.clients[i];
+      for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+        Host.client = SV.svs.clients[clientIndex];
         if (Host.client.active !== true) continue;
         if (
           SV.GetClientName(Host.client).toLowerCase() ===
@@ -396,128 +434,142 @@ HostCommands = {
           break;
       }
     }
-    if (i >= SV.svs.maxclients) {
-      Host.client = save;
+    if (clientIndex >= SV.svs.maxclients) {
+      Host.client = savedClient;
       return;
     }
-    var who;
-    if (Cmd.client !== true) who = "Console";
+    let kickerName;
+    if (Cmd.client !== true) kickerName = "Console";
     else {
-      if (Host.client === save) return;
-      who = SV.GetClientName(save);
+      if (Host.client === savedClient) return;
+      kickerName = SV.GetClientName(savedClient);
     }
-    var message;
-    if (Cmd.argv.length >= 3) message = COM.Parse(Cmd.args);
-    if (message != null) {
-      var p = 0;
-      if (byNumber === true) {
-        ++p;
-        for (; p < message.length; ++p) {
-          if (message.charCodeAt(p) !== 32) break;
+    let kickMessage;
+    if (Cmd.argv.length >= 3) kickMessage = COM.Parse(Cmd.args);
+    if (kickMessage != null) {
+      let messageStartPos = 0;
+      if (isKickByNumber === true) {
+        ++messageStartPos;
+        for (; messageStartPos < kickMessage.length; ++messageStartPos) {
+          if (kickMessage.charCodeAt(messageStartPos) !== 32) break;
         }
-        p += Cmd.argv[2].length;
+        messageStartPos += Cmd.argv[2].length;
       }
-      for (; p < message.length; ++p) {
-        if (message.charCodeAt(p) !== 32) break;
+      for (; messageStartPos < kickMessage.length; ++messageStartPos) {
+        if (kickMessage.charCodeAt(messageStartPos) !== 32) break;
       }
-      Host.ClientPrint("Kicked by " + who + ": " + message.substring(p) + "\n");
-    } else Host.ClientPrint("Kicked by " + who + "\n");
+      Host.ClientPrint(
+        "Kicked by " +
+          kickerName +
+          ": " +
+          kickMessage.substring(messageStartPos) +
+          "\n"
+      );
+    } else Host.ClientPrint("Kicked by " + kickerName + "\n");
     Host.DropClient();
-    Host.client = save;
+    Host.client = savedClient;
   },
 
   Give_f: function () {
     if (Cmd.client !== true) return;
     if (PR.globals_float[PR.globalvars.deathmatch] !== 0) return;
     if (Cmd.argv.length <= 1) return;
-    var t = Cmd.argv[1].charCodeAt(0);
-    var ent = SV.player;
+    const itemId = Cmd.argv[1].charCodeAt(0);
+    const playerEntity = SV.player;
 
-    if (t >= 48 && t <= 57) {
+    if (itemId >= 48 && itemId <= 57) {
       if (COM.hipnotic !== true) {
-        if (t >= 50)
-          ent.v_float[PR.entvars.items] |= Def.it.shotgun << (t - 50);
+        if (itemId >= 50)
+          playerEntity.v_float[PR.entvars.items] |=
+            Def.it.shotgun << (itemId - 50);
         return;
       }
-      if (t === 54) {
+      if (itemId === 54) {
         if (Cmd.argv[1].charCodeAt(1) === 97)
-          ent.v_float[PR.entvars.items] |= Def.hit.proximity_gun;
-        else ent.v_float[PR.entvars.items] |= Def.it.grenade_launcher;
+          playerEntity.v_float[PR.entvars.items] |= Def.hit.proximity_gun;
+        else playerEntity.v_float[PR.entvars.items] |= Def.it.grenade_launcher;
         return;
       }
-      if (t === 57) ent.v_float[PR.entvars.items] |= Def.hit.laser_cannon;
-      else if (t === 48) ent.v_float[PR.entvars.items] |= Def.hit.mjolnir;
-      else if (t >= 50)
-        ent.v_float[PR.entvars.items] |= Def.it.shotgun << (t - 50);
+      if (itemId === 57)
+        playerEntity.v_float[PR.entvars.items] |= Def.hit.laser_cannon;
+      else if (itemId === 48)
+        playerEntity.v_float[PR.entvars.items] |= Def.hit.mjolnir;
+      else if (itemId >= 50)
+        playerEntity.v_float[PR.entvars.items] |=
+          Def.it.shotgun << (itemId - 50);
       return;
     }
-    var v = Q.atoi(Cmd.argv[2]);
-    if (t === 104) {
-      ent.v_float[PR.entvars.health] = v;
+
+    const amount = Q.atoi(Cmd.argv[2]);
+
+    if (itemId === 104) {
+      playerEntity.v_float[PR.entvars.health] = amount;
       return;
     }
+
     if (COM.rogue !== true) {
-      switch (t) {
+      switch (itemId) {
         case 115:
-          ent.v_float[PR.entvars.ammo_shells] = v;
+          playerEntity.v_float[PR.entvars.ammo_shells] = amount;
           return;
         case 110:
-          ent.v_float[PR.entvars.ammo_nails] = v;
+          playerEntity.v_float[PR.entvars.ammo_nails] = amount;
           return;
         case 114:
-          ent.v_float[PR.entvars.ammo_rockets] = v;
+          playerEntity.v_float[PR.entvars.ammo_rockets] = amount;
           return;
         case 99:
-          ent.v_float[PR.entvars.ammo_cells] = v;
+          playerEntity.v_float[PR.entvars.ammo_cells] = amount;
       }
       return;
     }
-    switch (t) {
+
+    switch (itemId) {
       case 115:
         if (PR.entvars.ammo_shells1 != null)
-          ent.v_float[PR.entvars.ammo_shells1] = v;
-        ent.v_float[PR.entvars.ammo_shells] = v;
+          playerEntity.v_float[PR.entvars.ammo_shells1] = amount;
+        playerEntity.v_float[PR.entvars.ammo_shells] = amount;
         return;
       case 110:
         if (PR.entvars.ammo_nails1 != null) {
-          ent.v_float[PR.entvars.ammo_nails1] = v;
-          if (ent.v_float[PR.entvars.weapon] <= Def.it.lightning)
-            ent.v_float[PR.entvars.ammo_nails] = v;
+          playerEntity.v_float[PR.entvars.ammo_nails1] = amount;
+          if (playerEntity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+            playerEntity.v_float[PR.entvars.ammo_nails] = amount;
         }
         return;
       case 108:
         if (PR.entvars.ammo_lava_nails != null) {
-          ent.v_float[PR.entvars.ammo_lava_nails] = v;
-          if (ent.v_float[PR.entvars.weapon] > Def.it.lightning)
-            ent.v_float[PR.entvars.ammo_nails] = v;
+          playerEntity.v_float[PR.entvars.ammo_lava_nails] = amount;
+          if (playerEntity.v_float[PR.entvars.weapon] > Def.it.lightning)
+            playerEntity.v_float[PR.entvars.ammo_nails] = amount;
         }
         return;
       case 114:
         if (PR.entvars.ammo_rockets1 != null) {
-          ent.v_float[PR.entvars.ammo_rockets1] = v;
-          if (ent.v_float[PR.entvars.weapon] <= Def.it.lightning)
-            ent.v_float[PR.entvars.ammo_rockets] = v;
+          playerEntity.v_float[PR.entvars.ammo_rockets1] = amount;
+          if (playerEntity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+            playerEntity.v_float[PR.entvars.ammo_rockets] = amount;
         }
         return;
       case 109:
         if (PR.entvars.ammo_multi_rockets != null) {
-          ent.v_float[PR.entvars.ammo_multi_rockets] = v;
-          if (ent.v_float[PR.entvars.weapon] > Def.it.lightning)
-            ent.v_float[PR.entvars.ammo_rockets] = v;
+          playerEntity.v_float[PR.entvars.ammo_multi_rockets] = amount;
+          if (playerEntity.v_float[PR.entvars.weapon] > Def.it.lightning)
+            playerEntity.v_float[PR.entvars.ammo_rockets] = amount;
         }
         return;
       case 99:
         if (PR.entvars.ammo_cells1 != null) {
-          ent.v_float[PR.entvars.ammo_cells1] = v;
-          if (ent.v_float[PR.entvars.weapon] <= Def.it.lightning)
-            ent.v_float[PR.entvars.ammo_cells] = v;
+          playerEntity.v_float[PR.entvars.ammo_cells1] = amount;
+          if (playerEntity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+            playerEntity.v_float[PR.entvars.ammo_cells] = amount;
         }
         return;
       case 112:
         if (PR.entvars.ammo_plasma != null) {
-          ent.v_float[PR.entvars.ammo_plasma] = v;
-          if (ent.v_float[PR.entvars.weapon] > Def.it.lightning)
-            ent.v_float[PR.entvars.ammo_cells] = v;
+          playerEntity.v_float[PR.entvars.ammo_plasma] = amount;
+          if (playerEntity.v_float[PR.entvars.weapon] > Def.it.lightning)
+            playerEntity.v_float[PR.entvars.ammo_cells] = amount;
         }
     }
   },

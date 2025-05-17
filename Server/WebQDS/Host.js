@@ -1,4 +1,4 @@
-Host = {
+const Host = {
   framecount: 0,
   inerror: false,
   realtime: 0.0,
@@ -83,7 +83,7 @@ Host = {
     Host.FindMaxClients();
   },
 
-  _Frame: function () {
+  _processFrame: function () {
     Math.random();
 
     Host.realtime = Sys.FloatTime();
@@ -100,33 +100,40 @@ Host = {
     ++Host.framecount;
   },
 
+  _processFrameWithProfiling: function () {
+    const startTime = Sys.FloatTime();
+    Host._processFrame();
+    Host.timetotal += Sys.FloatTime() - startTime;
+    if (++Host.timecount <= 999) return;
+
+    const avgTimeMs = ((Host.timetotal * 1000.0) / Host.timecount) >> 0;
+    Host.timecount = 0;
+    Host.timetotal = 0.0;
+
+    let clientIndex,
+      activeClientCount = 0;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      if (SV.svs.clients[clientIndex].active === true) ++activeClientCount;
+    }
+
+    Con.Print(
+      "serverprofile: " +
+        (activeClientCount <= 9 ? " " : "") +
+        activeClientCount +
+        " clients " +
+        (avgTimeMs <= 9 ? " " : "") +
+        avgTimeMs +
+        " msec\n"
+    );
+  },
+
   Frame: function () {
     setTimeout(Host.Frame, Host.ticrate.value * 1000.0);
     if (Host.serverprofile.value === 0) {
-      Host._Frame();
-      return;
+      Host._processFrame();
+    } else {
+      Host._processFrameWithProfiling();
     }
-    var time1 = Sys.FloatTime();
-    Host._Frame();
-    Host.timetotal += Sys.FloatTime() - time1;
-    if (++Host.timecount <= 999) return;
-    var m = ((Host.timetotal * 1000.0) / Host.timecount) >> 0;
-    Host.timecount = 0;
-    Host.timetotal = 0.0;
-    var i,
-      c = 0;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      if (SV.svs.clients[i].active === true) ++c;
-    }
-    Con.Print(
-      "serverprofile: " +
-        (c <= 9 ? " " : "") +
-        c +
-        " clients " +
-        (m <= 9 ? " " : "") +
-        m +
-        " msec\n"
-    );
   },
 
   Init: function () {

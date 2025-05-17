@@ -1,26 +1,26 @@
 // Host client communication functions
-HostClient = {
-  ClientPrint: function (string) {
+const HostClient = {
+  ClientPrint: function (message) {
     MSG.WriteByte(Host.client.message, Protocol.svc.print);
-    MSG.WriteString(Host.client.message, string);
+    MSG.WriteString(Host.client.message, message);
   },
 
-  BroadcastPrint: function (string) {
-    var i, client;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
+  BroadcastPrint: function (message) {
+    let clientIndex, client;
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      client = SV.svs.clients[clientIndex];
       if (client.active !== true || client.spawned !== true) continue;
       MSG.WriteByte(client.message, Protocol.svc.print);
-      MSG.WriteString(client.message, string);
+      MSG.WriteString(client.message, message);
     }
   },
 
   Error: function (error) {
     if (Host.inerror === true) Sys.Error("Host.Error: recursively entered");
     Host.inerror = true;
-    error = "Host.Error: " + error + "\n";
-    Con.Print(error);
-    Sys.Error(error);
+    const errorMessage = "Host.Error: " + error + "\n";
+    Con.Print(errorMessage);
+    Sys.Error(errorMessage);
   },
 };
 

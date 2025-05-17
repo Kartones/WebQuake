@@ -1,21 +1,25 @@
 // Host server-related functions
-HostServer = {
+const HostServer = {
   FindMaxClients: function () {
-    var i = COM.CheckParm("-maxplayers");
+    const maxPlayersArgIndex = COM.CheckParm("-maxplayers");
     SV.svs.maxclients = 8;
-    if (i != null) {
-      ++i;
-      if (i < COM.argv.length) {
-        SV.svs.maxclients = Q.atoi(COM.argv[i]);
+    if (maxPlayersArgIndex != null) {
+      const valueIndex = maxPlayersArgIndex + 1;
+      if (valueIndex < COM.argv.length) {
+        SV.svs.maxclients = Q.atoi(COM.argv[valueIndex]);
         if (SV.svs.maxclients <= 0) SV.svs.maxclients = 8;
         else if (SV.svs.maxclients > 16) SV.svs.maxclients = 16;
       }
     }
     SV.svs.maxclientslimit = SV.svs.maxclients;
     SV.svs.clients = [];
-    for (i = 0; i < SV.svs.maxclientslimit; ++i) {
-      SV.svs.clients[i] = {
-        num: i,
+    for (
+      let clientIndex = 0;
+      clientIndex < SV.svs.maxclientslimit;
+      ++clientIndex
+    ) {
+      SV.svs.clients[clientIndex] = {
+        num: clientIndex,
         message: {
           data: new ArrayBuffer(8000),
           cursize: 0,
@@ -32,13 +36,13 @@ HostServer = {
   ShutdownServer: function (crash) {
     if (SV.server.active !== true) return;
     SV.server.active = false;
-    var start = Sys.FloatTime(),
-      count,
-      i;
+    const startTime = Sys.FloatTime();
+    let pendingMessageCount;
+    let clientIndex;
     do {
-      count = 0;
-      for (i = 0; i < SV.svs.maxclients; ++i) {
-        Host.client = SV.svs.clients[i];
+      pendingMessageCount = 0;
+      for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+        Host.client = SV.svs.clients[clientIndex];
         if (Host.client.active !== true || Host.client.message.cursize === 0)
           continue;
         if (NET.CanSendMessage(Host.client.netconnection) === true) {
@@ -47,19 +51,21 @@ HostServer = {
           continue;
         }
         NET.GetMessage(Host.client.netconnection);
-        ++count;
+        ++pendingMessageCount;
       }
-      if (Sys.FloatTime() - start > 3.0) break;
-    } while (count !== 0);
-    var buf = { data: new ArrayBuffer(4), cursize: 1 };
-    new Uint8Array(buf.data)[0] = Protocol.svc.disconnect;
-    count = NET.SendToAll(buf);
-    if (count !== 0)
+      if (Sys.FloatTime() - startTime > 3.0) break;
+    } while (pendingMessageCount !== 0);
+    const disconnectBuffer = { data: new ArrayBuffer(4), cursize: 1 };
+    new Uint8Array(disconnectBuffer.data)[0] = Protocol.svc.disconnect;
+    const failedClientCount = NET.SendToAll(disconnectBuffer);
+    if (failedClientCount !== 0)
       Con.Print(
-        "Host.ShutdownServer: NET.SendToAll failed for " + count + " clients\n"
+        "Host.ShutdownServer: NET.SendToAll failed for " +
+          failedClientCount +
+          " clients\n"
       );
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      Host.client = SV.svs.clients[i];
+    for (clientIndex = 0; clientIndex < SV.svs.maxclients; ++clientIndex) {
+      Host.client = SV.svs.clients[clientIndex];
       if (Host.client.active === true) Host.DropClient(crash);
     }
   },
@@ -87,23 +93,23 @@ HostServer = {
   },
 
   GetConsoleCommands: function () {
-    var cmd;
+    let command;
     for (;;) {
-      cmd = Sys.ConsoleInput();
-      if (cmd == null) return;
-      Cmd.text += cmd;
+      command = Sys.ConsoleInput();
+      if (command == null) return;
+      Cmd.text += command;
     }
   },
 
   DropClient: function (crash) {
-    var client = Host.client;
+    const client = Host.client;
     if (crash !== true) {
       if (NET.CanSendMessage(client.netconnection) === true) {
         MSG.WriteByte(client.message, Protocol.svc.disconnect);
         NET.SendMessage(client.netconnection, client.message);
       }
       if (client.edict != null && client.spawned === true) {
-        var saveSelf = PR.globals_int[PR.globalvars.self];
+        const saveSelf = PR.globals_int[PR.globalvars.self];
         PR.globals_int[PR.globalvars.self] = client.edict.num;
         PR.ExecuteProgram(PR.globals_int[PR.globalvars.ClientDisconnect]);
         PR.globals_int[PR.globalvars.self] = saveSelf;
@@ -116,20 +122,24 @@ HostServer = {
     SV.SetClientName(client, "");
     client.old_frags = -999999;
     --NET.activeconnections;
-    var i,
-      num = client.num;
-    for (i = 0; i < SV.svs.maxclients; ++i) {
-      client = SV.svs.clients[i];
-      if (client.active !== true) continue;
-      MSG.WriteByte(client.message, Protocol.svc.updatename);
-      MSG.WriteByte(client.message, num);
-      MSG.WriteByte(client.message, 0);
-      MSG.WriteByte(client.message, Protocol.svc.updatefrags);
-      MSG.WriteByte(client.message, num);
-      MSG.WriteShort(client.message, 0);
-      MSG.WriteByte(client.message, Protocol.svc.updatecolors);
-      MSG.WriteByte(client.message, num);
-      MSG.WriteByte(client.message, 0);
+    let currentClientIndex;
+    const clientNumber = client.num;
+    for (
+      currentClientIndex = 0;
+      currentClientIndex < SV.svs.maxclients;
+      ++currentClientIndex
+    ) {
+      const currentClient = SV.svs.clients[currentClientIndex];
+      if (currentClient.active !== true) continue;
+      MSG.WriteByte(currentClient.message, Protocol.svc.updatename);
+      MSG.WriteByte(currentClient.message, clientNumber);
+      MSG.WriteByte(currentClient.message, 0);
+      MSG.WriteByte(currentClient.message, Protocol.svc.updatefrags);
+      MSG.WriteByte(currentClient.message, clientNumber);
+      MSG.WriteShort(currentClient.message, 0);
+      MSG.WriteByte(currentClient.message, Protocol.svc.updatecolors);
+      MSG.WriteByte(currentClient.message, clientNumber);
+      MSG.WriteByte(currentClient.message, 0);
     }
   },
 };
