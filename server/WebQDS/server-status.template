@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WebQuake Server - %hostname%</title>
+</head>
+<body>
+<h2>%headerContent%</h2>
+
+<table border="1">
+<tr><th>Name</th><th>Shirt</th><th>Pants</th><th>Frags</th><th>Time</th></tr>
+%playerRows%
+</table>
+
+<p>
+  RCON Command: <input type="text" id="rcon" onkeypress="handleEnterKey(event)"><br/>
+  RCON Password: <input type="password" id="password" onkeypress="handleEnterKey(event)"><br/>
+  <input type="button" id="rconButton" value="Send" onclick="rcon()">
+</p>
+
+<script type="text/javascript">
+  function rcon() {
+    let rcon = document.getElementById('rcon').value,
+      password = document.getElementById('password').value;
+    if ((rcon.length === 0) || (password.length === 0)) {return;}
+    try {
+      rcon = encodeURIComponent(rcon);
+      password = 'Basic ' + btoa('quake:' + password);
+    } catch (e) {
+      return;
+    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('HEAD', '/rcon/' + rcon);
+    xhr.setRequestHeader('Authorization', password);
+    xhr.send();
+  }
+
+  function handleEnterKey(event) {
+    if (event.key === 'Enter') {
+      rcon();
+    }
+  }
+</script>
+</body>
+</html>

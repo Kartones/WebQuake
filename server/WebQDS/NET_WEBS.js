@@ -2,6 +2,7 @@ WEBS = {};
 
 WEBS.acceptsockets = [];
 WEBS.colors = [];
+WEBS.templates = {};
 
 WEBS.Init = function () {
   const palette = COM.LoadFile("gfx/palette.lmp");
@@ -16,6 +17,32 @@ WEBS.Init = function () {
     },${paletteData[sourceByte + 2]}`;
     sourceByte += 48;
   }
+
+  let serverStatusTemplate, playerRowTemplate;
+  try {
+    serverStatusTemplate = Node.fs.readFileSync(
+      "server/WebQDS/server-status.template",
+      "utf8"
+    );
+  } catch (e) {
+    Sys.Error(
+      "Couldn't load server/WebQDS/server-status.template: " + e.message
+    );
+    return false;
+  }
+
+  try {
+    playerRowTemplate = Node.fs.readFileSync(
+      "server/WebQDS/player-row.template",
+      "utf8"
+    );
+  } catch (e) {
+    Sys.Error("Couldn't load server/WebQDS/player-row.template: " + e.message);
+    return false;
+  }
+
+  WEBS.templates.serverStatus = serverStatusTemplate;
+  WEBS.templates.playerRow = playerRowTemplate;
 
   WEBS.server = new Node.websocket.server();
   WEBS.server.on("request", WEBS.ServerOnRequest);
@@ -141,6 +168,40 @@ WEBS.HTMLSpecialChars = function (str) {
   return outputChars.join("");
 };
 
+WEBS._clientDetails = function (client, currentTime) {
+  const playerName = WEBS.HTMLSpecialChars(SV.GetClientName(client));
+  const shirtColor = WEBS.colors[client.colors >> 4];
+  const pantsColor = WEBS.colors[client.colors & 15];
+  const shirtNum = (client.colors >> 4).toString();
+  const pantsNum = (client.colors & 15).toString();
+  const frags = client.edict.v_float[PR.entvars.frags].toFixed(0);
+  const connectionTime = Math.floor(
+    currentTime - client.netconnection.connecttime
+  );
+  const formattedTime = `${Math.floor(connectionTime / 60.0)}:${Math.floor(
+    connectionTime % 60.0
+  )
+    .toString()
+    .padStart(2, "0")}`;
+  return {
+    playerName,
+    shirtColor,
+    pantsColor,
+    shirtNum,
+    pantsNum,
+    frags,
+    formattedTime,
+  };
+};
+
+WEBS._renderTemplate = function (template, replacements) {
+  let result = template;
+  Object.keys(replacements).forEach((key) => {
+    result = result.replace(new RegExp(`%${key}%`, "g"), replacements[key]);
+  });
+  return result;
+};
+
 WEBS.HTTPOnRequest = function (request, response) {
   if (request.method === "OPTIONS") {
     response.statusCode = 200;
@@ -175,79 +236,32 @@ WEBS.HTTPOnRequest = function (request, response) {
       return;
     }
     const hostname = WEBS.HTMLSpecialChars(NET.hostname.string);
-    response.write(
-      `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>WebQuake Server - ${hostname}</title>`
-    );
-    if (Host.rcon_password.string.length !== 0) {
-      response.write(`<script type="text/javascript">
-function rcon() {
-  let rcon = document.getElementById('rcon').value,
-    password = document.getElementById('password').value;
-  if ((rcon.length === 0) || (password.length === 0)) {return;}
-  try {
-    rcon = encodeURIComponent(rcon);
-    password = 'Basic ' + btoa('quake:' + password);
-  } catch (e) {
-    return;
-  }
-  const xhr = new XMLHttpRequest();
-  xhr.open('HEAD', '/rcon/' + rcon);
-  xhr.setRequestHeader('Authorization', password);
-  xhr.send();
-}
-</script>`);
-    }
-    response.write("</head><body>");
     const headerContent = `${hostname} - ${WEBS.HTMLSpecialChars(
       PR.GetString(PR.globals_int[PR.globalvars.mapname])
     )} (${NET.activeconnections.toString()}/${SV.svs.maxclients.toString()})`;
-    response.write(`<h2>${headerContent}</h2>`);
-    response.write(
-      '<table border="1"><tr><th>Name</th><th>Shirt</th><th>Pants</th><th>Frags</th><th>Time</th></tr>'
-    );
 
-    let client;
+    let playerRows = "";
     const currentTime = Sys.FloatTime();
-    let connectionTime;
 
-    for (let i = 0; i < SV.svs.maxclients; ++i) {
+    for (let i = 0, client; i < SV.svs.maxclients; ++i) {
       client = SV.svs.clients[i];
       if (client.active !== true) continue;
 
-      const playerName = WEBS.HTMLSpecialChars(SV.GetClientName(client));
-      const shirtColor = WEBS.colors[client.colors >> 4];
-      const pantsColor = WEBS.colors[client.colors & 15];
-      const shirtNum = (client.colors >> 4).toString();
-      const pantsNum = (client.colors & 15).toString();
-      const frags = client.edict.v_float[PR.entvars.frags].toFixed(0);
-
-      connectionTime = Math.floor(
-        currentTime - client.netconnection.connecttime
+      const clientDetails = WEBS._clientDetails(client, currentTime);
+      const playerRow = WEBS._renderTemplate(
+        WEBS.templates.playerRow,
+        clientDetails
       );
-      const formattedTime = `${Math.floor(connectionTime / 60.0)}:${Math.floor(
-        connectionTime % 60.0
-      )
-        .toString()
-        .padStart(2, "0")}`;
-
-      const playerRow = `<tr>
-        <td>${playerName}</td>
-        <td style="background-color: rgb(${shirtColor}); color: white;">${shirtNum}</td>
-        <td style="background-color: rgb(${pantsColor}); color: white;">${pantsNum}</td>
-        <td>${frags}</td>
-        <td>${formattedTime}</td>
-      </tr>`;
-
-      response.write(playerRow);
+      playerRows += playerRow;
     }
-    response.write("</table>");
-    if (Host.rcon_password.string.length !== 0)
-      response.write(
-        `<p>RCON Command: <input type="text" id="rcon"><br/>
-        RCON Password: <input type="password" id="password"><br/>
-        <input type="button" value="Send" onclick="rcon()"></p>`
-      );
-    response.end("</body></html>");
+
+    const htmlContent = WEBS._renderTemplate(WEBS.templates.serverStatus, {
+      hostname: hostname,
+      headerContent: headerContent,
+      playerRows: playerRows,
+    });
+
+    response.end(htmlContent);
     return;
   }
   if (pathName === "server_info") {

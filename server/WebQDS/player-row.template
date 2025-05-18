@@ -1,0 +1,7 @@
+<tr>
+  <td>%playerName%</td>
+  <td style="background-color: rgb(%shirtColor%); color: white;">%shirtNum%</td>
+  <td style="background-color: rgb(%pantsColor%); color: white;">%pantsNum%</td>
+  <td>%frags%</td>
+  <td>%formattedTime%</td>
+</tr>
