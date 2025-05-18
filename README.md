@@ -5,6 +5,7 @@
 This fork is based on the original ([WebQuake](https://github.com/Triang3l/WebQuake)), but includes also:
 - Docker support (based on [@AkashV22/docker-web-quake](https://github.com/AkashV22/docker-web-quake))
 - [WinQuake connection bugfix PR](https://github.com/Triang3l/WebQuake/pull/39/files)
+- More modern Javascript features: `let`/`const`, string templates, and the like (WIP)
 - `eslint`ed code (WIP)
 - code comments (WIP)
 
@@ -35,11 +36,6 @@ To stop:
 docker stop webquake-client
 ```
 
-Can be also run directly via:
-```bash
-node Server/WebQDS.js
-```
-
 ### Server
 
 Build:
@@ -64,6 +60,7 @@ docker stop webquake-server
 ## Development
 
 See [DEVELOPMENT](DEVELOPMENT.md).
+
 
 ## Old instructions
 

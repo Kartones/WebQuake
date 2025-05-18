@@ -2,7 +2,7 @@
 
 # Running the client
 
-1. Install [http-server](https://www.npmjs.com/package/http-server)
+1. Install [http-server](https://www.npmjs.com/package/http-server) or similar
 
 2. From **to client root folder**:
 - create `id1` subfolder
@@ -17,6 +17,16 @@ http-server ./ -c-1
 ```
 
 4. Go to `http://127.0.0.1:8080/index.htm?"-nocdaudio"`
+
+# Running the Server
+
+```bash
+pnpm install
+```
+
+```bash
+node Server/WebQDS.js
+```
 
 
 # Code walkthrough
