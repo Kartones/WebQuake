@@ -1105,7 +1105,9 @@ CL.Init = function () {
 // parse
 
 /**
- * EntityNum function.
+ * Return an entity structure by its number, allocating it if necessary.
+ * @param {number} num - The entity number.
+ * @returns {object} The entity object.
  */
 CL.EntityNum = function (num) {
   if (num < CL.entities.length) return CL.entities[num];
@@ -1146,7 +1148,7 @@ CL.EntityNum = function (num) {
 };
 
 /**
- * Parse a sound packet from server.
+ * Parse a sound packet from server and play it.
  */
 CL.ParseStartSoundPacket = function () {
   var field_mask = MSG.ReadByte();
@@ -1687,7 +1689,7 @@ CL.ParseServerMessage = function () {
 // tent
 
 /**
- * InitTEnts function.
+ * InitTEnts function. Precaches some sounds (used by temporary entities?).
  */
 CL.InitTEnts = function () {
   CL.sfx_wizhit = S.PrecacheSound("wizard/hit.wav");
