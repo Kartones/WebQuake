@@ -24,7 +24,7 @@ Build:
 docker build -f Dockerfile.client -t webquake .
 ```
 
-And run  (from `/Client` folder):
+And run:
 ```bash
 docker run --name webquake-client --rm -p 8080:80 webquake
 ```
@@ -131,13 +131,13 @@ You can retrieve some server information in JSON format by going to special addr
 
 # Adding game music
 
-To add music to WebQuake, you need to get the music off the Quake CD and convert it into .ogg format ([Audacity](http://audacity.sourceforge.net/) is great for this).
+To add music to WebQuake, you need to get the music off the Quake CD and convert it into `.ogg` format ([Audacity](http://audacity.sourceforge.net/) is great for this).
 
-The .ogg files should be called `quake##.ogg`, where ## is CD track number minus 1 with trailing 0, so the main theme is named `quake01.ogg` and the last track on the Quake disc is `quake10.ogg`.
+The `.ogg` files should be called `track##.ogg`, where ## is CD track number with trailing 0, so the main theme is named `track02.ogg` and the last track on the Quake disc is `track11.ogg`.
 
-Then you should configure the server to return audio/ogg MIME type for .ogg files.
+Then you should configure the server to return audio/ogg MIME type for `.ogg` files.
 
-After that, create "media" folder in the "id1" folder (or, for the mission pack music, "hipnotic" or "rogue") and put the .ogg files into it.
+After that, create "music" folder in the "id1" folder (or, for the mission pack music, "hipnotic" or "rogue") and put the `.ogg` files into it.
 
 # Browser support
 

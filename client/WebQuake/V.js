@@ -15,7 +15,7 @@ V.dmg_time = 0.0;
  */
 V.CalcRoll = function (angles, velocity) {
   var right = [];
-  Vec.AngleVectors(angles, null, right);
+  ClientVec.AngleVectors(angles, null, right);
   var side =
     velocity[0] * right[0] + velocity[1] * right[1] + velocity[2] * right[2];
   var sign = side < 0 ? -1 : 1;
@@ -148,7 +148,7 @@ V.ParseDamage = function () {
     MSG.ReadCoord() - ent.origin[1],
     MSG.ReadCoord() - ent.origin[2],
   ];
-  Vec.Normalize(from);
+  ClientVec.Normalize(from);
   var count = (blood + armor) * 0.5;
   if (count < 10.0) count = 10.0;
   CL.state.faceanimtime = CL.state.time + 0.2;
@@ -171,7 +171,7 @@ V.ParseDamage = function () {
 
   var forward = [],
     right = [];
-  Vec.AngleVectors(ent.angles, forward, right);
+  ClientVec.AngleVectors(ent.angles, forward, right);
   V.dmg_roll =
     count *
     (from[0] * right[0] + from[1] * right[1] + from[2] * right[2]) *
@@ -234,22 +234,22 @@ V.SetContentsColor = function (contents) {
  */
 V.CalcBlend = function () {
   var cshift = CL.state.cshifts[CL.cshift.powerup];
-  if ((CL.state.items & Def.it.quad) !== 0) {
+  if ((CL.state.items & ClientDef.it.quad) !== 0) {
     cshift[0] = 0.0;
     cshift[1] = 0.0;
     cshift[2] = 255.0;
     cshift[3] = 30.0;
-  } else if ((CL.state.items & Def.it.suit) !== 0) {
+  } else if ((CL.state.items & ClientDef.it.suit) !== 0) {
     cshift[0] = 0.0;
     cshift[1] = 255.0;
     cshift[2] = 0.0;
     cshift[3] = 20.0;
-  } else if ((CL.state.items & Def.it.invisibility) !== 0) {
+  } else if ((CL.state.items & ClientDef.it.invisibility) !== 0) {
     cshift[0] = 100.0;
     cshift[1] = 100.0;
     cshift[2] = 100.0;
     cshift[3] = 100.0;
-  } else if ((CL.state.items & Def.it.invulnerability) !== 0) {
+  } else if ((CL.state.items & ClientDef.it.invulnerability) !== 0) {
     cshift[0] = 255.0;
     cshift[1] = 255.0;
     cshift[2] = 0.0;
@@ -346,7 +346,7 @@ V.CalcRefdef = function () {
     }
     V.dmg_time -= Host.frametime;
   }
-  if (CL.state.stats[Def.stat.health] <= 0) R.refdef.viewangles[2] = 80.0;
+  if (CL.state.stats[ClientDef.stat.health] <= 0) R.refdef.viewangles[2] = 80.0;
 
   var ipitch =
     V.idlescale.value *
@@ -367,7 +367,7 @@ V.CalcRefdef = function () {
   var forward = [],
     right = [],
     up = [];
-  Vec.AngleVectors(
+  ClientVec.AngleVectors(
     [-ent.angles[0], ent.angles[1], ent.angles[2]],
     forward,
     right,
@@ -412,8 +412,8 @@ V.CalcRefdef = function () {
     case 80:
       view.origin[2] += 0.5;
   }
-  view.model = CL.state.model_precache[CL.state.stats[Def.stat.weapon]];
-  view.frame = CL.state.stats[Def.stat.weaponframe];
+  view.model = CL.state.model_precache[CL.state.stats[ClientDef.stat.weapon]];
+  view.frame = CL.state.stats[ClientDef.stat.weaponframe];
 
   R.refdef.viewangles[0] += CL.state.punchangle[0];
   R.refdef.viewangles[1] += CL.state.punchangle[1];

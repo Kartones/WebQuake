@@ -725,7 +725,7 @@ SV.SpawnServer = function (server) {
 
   SV.server.edicts = [];
   var ed;
-  for (i = 0; i < Def.max_edicts; ++i) {
+  for (i = 0; i < ClientDef.max_edicts; ++i) {
     ed = {
       num: i,
       free: false,
@@ -866,7 +866,7 @@ SV.CheckBottom = function (ent) {
   }
   var start = [(mins[0] + maxs[0]) * 0.5, (mins[1] + maxs[1]) * 0.5, mins[2]];
   var stop = [start[0], start[1], start[2] - 36.0];
-  var trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
+  var trace = SV.Move(start, ClientVec.origin, ClientVec.origin, stop, 1, ent);
   if (trace.fraction === 1.0) return;
   var mid, bottom;
   mid = bottom = trace.endpos[2];
@@ -875,7 +875,7 @@ SV.CheckBottom = function (ent) {
     for (y = 0; y <= 1; ++y) {
       start[0] = stop[0] = x !== 0 ? maxs[0] : mins[0];
       start[1] = stop[1] = y !== 0 ? maxs[1] : mins[1];
-      trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
+      trace = SV.Move(start, ClientVec.origin, ClientVec.origin, stop, 1, ent);
       if (trace.fraction !== 1.0 && trace.endpos[2] > bottom)
         bottom = trace.endpos[2];
       if (trace.fraction === 1.0 || mid - trace.endpos[2] > 18.0) return;
@@ -995,10 +995,10 @@ SV.StepDirection = function (ent, yaw, dist) {
  * NewChaseDir function.
  */
 SV.NewChaseDir = function (actor, enemy, dist) {
-  var olddir = Vec.Anglemod(
+  var olddir = ClientVec.Anglemod(
     ((actor.v_float[PR.entvars.ideal_yaw] / 45.0) >> 0) * 45.0
   );
-  var turnaround = Vec.Anglemod(olddir - 180.0);
+  var turnaround = ClientVec.Anglemod(olddir - 180.0);
   var deltax =
     enemy.v_float[PR.entvars.origin] - actor.v_float[PR.entvars.origin];
   var deltay =
@@ -1225,7 +1225,7 @@ SV.FlyMove = function (ent, time) {
       ent
     );
     if (trace.allsolid === true) {
-      ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
+      ED.SetVector(ent, PR.entvars.velocity, ClientVec.origin);
       return 3;
     }
     if (trace.fraction > 0.0) {
@@ -1249,7 +1249,7 @@ SV.FlyMove = function (ent, time) {
     if (ent.free === true) break;
     time_left -= time_left * trace.fraction;
     if (numplanes >= 5) {
-      ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
+      ED.SetVector(ent, PR.entvars.velocity, ClientVec.origin);
       return 3;
     }
     planes[numplanes++] = [
@@ -1276,10 +1276,10 @@ SV.FlyMove = function (ent, time) {
     if (i !== numplanes) ED.SetVector(ent, PR.entvars.velocity, new_velocity);
     else {
       if (numplanes !== 2) {
-        ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
+        ED.SetVector(ent, PR.entvars.velocity, ClientVec.origin);
         return 7;
       }
-      dir = Vec.CrossProduct(planes[0], planes[1]);
+      dir = ClientVec.CrossProduct(planes[0], planes[1]);
       d =
         dir[0] * ent.v_float[PR.entvars.velocity] +
         dir[1] * ent.v_float[PR.entvars.velocity1] +
@@ -1294,7 +1294,7 @@ SV.FlyMove = function (ent, time) {
         ent.v_float[PR.entvars.velocity2] * primal_velocity[2] <=
       0.0
     ) {
-      ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
+      ED.SetVector(ent, PR.entvars.velocity, ClientVec.origin);
       return blocked;
     }
   }
@@ -1545,7 +1545,7 @@ SV.CheckWater = function (ent) {
  */
 SV.WallFriction = function (ent, trace) {
   var forward = [];
-  Vec.AngleVectors(ED.Vector(ent, PR.entvars.v_angle), forward);
+  ClientVec.AngleVectors(ED.Vector(ent, PR.entvars.v_angle), forward);
   var normal = trace.plane.normal;
   var d =
     normal[0] * forward[0] +
@@ -1613,7 +1613,7 @@ SV.TryUnstick = function (ent, oldvel) {
       return clip;
     ED.SetVector(ent, PR.entvars.origin, oldorg);
   }
-  ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
+  ED.SetVector(ent, PR.entvars.velocity, ClientVec.origin);
   return 7;
 };
 
@@ -1899,7 +1899,7 @@ SV.SetIdealPitch = function () {
       ent.v_float[PR.entvars.origin] + cosval * (i + 3) * 12.0;
     top[1] = bottom[1] =
       ent.v_float[PR.entvars.origin1] + sinval * (i + 3) * 12.0;
-    tr = SV.Move(top, Vec.origin, Vec.origin, bottom, 1, ent);
+    tr = SV.Move(top, ClientVec.origin, ClientVec.origin, bottom, 1, ent);
     if (tr.allsolid === true || tr.fraction === 1.0) return;
     z[i] = top[2] - tr.fraction * 160.0;
   }
@@ -1939,8 +1939,8 @@ SV.UserFriction = function () {
   if (
     SV.Move(
       start,
-      Vec.origin,
-      Vec.origin,
+      ClientVec.origin,
+      ClientVec.origin,
       [start[0], start[1], start[2] - 34.0],
       1,
       ent
@@ -1965,7 +1965,7 @@ SV.UserFriction = function () {
 SV.Accelerate = function (wishvel, air) {
   var ent = SV.player;
   var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
-  var wishspeed = Vec.Normalize(wishdir);
+  var wishspeed = ClientVec.Normalize(wishdir);
   if (air === true && wishspeed > 30.0) wishspeed = 30.0;
   var addspeed =
     wishspeed -
@@ -1988,7 +1988,7 @@ SV.WaterMove = function () {
     cmd = Host.client.cmd;
   var forward = [],
     right = [];
-  Vec.AngleVectors(ED.Vector(ent, PR.entvars.v_angle), forward, right);
+  ClientVec.AngleVectors(ED.Vector(ent, PR.entvars.v_angle), forward, right);
   var wishvel = [
     forward[0] * cmd.forwardmove + right[0] * cmd.sidemove,
     forward[1] * cmd.forwardmove + right[1] * cmd.sidemove,
@@ -2057,7 +2057,7 @@ SV.AirMove = function () {
   var cmd = Host.client.cmd;
   var forward = [],
     right = [];
-  Vec.AngleVectors(ED.Vector(ent, PR.entvars.angles), forward, right);
+  ClientVec.AngleVectors(ED.Vector(ent, PR.entvars.angles), forward, right);
   var fmove = cmd.forwardmove;
   var smove = cmd.sidemove;
   if (SV.server.time < ent.v_float[PR.entvars.teleport_time] && fmove < 0.0)
@@ -2070,7 +2070,7 @@ SV.AirMove = function () {
       : 0.0,
   ];
   var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
-  if (Vec.Normalize(wishdir) > SV.maxspeed.value) {
+  if (ClientVec.Normalize(wishdir) > SV.maxspeed.value) {
     wishvel[0] = wishdir[0] * SV.maxspeed.value;
     wishvel[1] = wishdir[1] * SV.maxspeed.value;
     wishvel[2] = wishdir[2] * SV.maxspeed.value;
@@ -2092,7 +2092,7 @@ SV.ClientThink = function () {
   if (ent.v_float[PR.entvars.movetype] === SV.movetype.none) return;
 
   var punchangle = ED.Vector(ent, PR.entvars.punchangle);
-  var len = Vec.Normalize(punchangle) - 10.0 * Host.frametime;
+  var len = ClientVec.Normalize(punchangle) - 10.0 * Host.frametime;
   if (len < 0.0) len = 0.0;
   ent.v_float[PR.entvars.punchangle] = punchangle[0] * len;
   ent.v_float[PR.entvars.punchangle1] = punchangle[1] * len;
@@ -2394,7 +2394,7 @@ SV.FindTouchedLeafs = function (ent, node) {
     return;
   }
 
-  var sides = Vec.BoxOnPlaneSide(
+  var sides = ClientVec.BoxOnPlaneSide(
     [
       ent.v_float[PR.entvars.absmin],
       ent.v_float[PR.entvars.absmin1],

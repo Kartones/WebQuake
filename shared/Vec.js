@@ -173,4 +173,9 @@ const Vec = {
   },
 };
 
-module.exports = Vec;
+// Support both browser and Node.js environments
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Vec;
+} else {
+  window.Vec = Vec;
+}

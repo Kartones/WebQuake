@@ -33,7 +33,7 @@ ED.Alloc = function () {
       return e;
     }
   }
-  if (i === Def.max_edicts) Sys.Error("ED.Alloc: no free edicts");
+  if (i === ClientDef.max_edicts) Sys.Error("ED.Alloc: no free edicts");
   e = SV.server.edicts[SV.server.num_edicts++];
   ED.ClearEdict(e);
   return e;
@@ -52,8 +52,8 @@ ED.Free = function (ed) {
   ed.v_float[PR.entvars.colormap] = 0.0;
   ed.v_float[PR.entvars.skin] = 0.0;
   ed.v_float[PR.entvars.frame] = 0.0;
-  ED.SetVector(ed, PR.entvars.origin, Vec.origin);
-  ED.SetVector(ed, PR.entvars.angles, Vec.origin);
+  ED.SetVector(ed, PR.entvars.origin, ClientVec.origin);
+  ED.SetVector(ed, PR.entvars.angles, ClientVec.origin);
   ed.v_float[PR.entvars.nextthink] = -1.0;
   ed.v_float[PR.entvars.solid] = 0.0;
   ed.freetime = SV.server.time;

@@ -22,7 +22,7 @@ Chase.Init = function () {
 Chase.Update = function () {
   var forward = [],
     right = [];
-  Vec.AngleVectors(CL.state.viewangles, forward, right);
+  ClientVec.AngleVectors(CL.state.viewangles, forward, right);
   var trace = { plane: {} },
     org = R.refdef.vieworg;
   SV.RecursiveHullCheck(

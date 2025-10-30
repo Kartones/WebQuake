@@ -4,21 +4,19 @@
  * Some basic definitions
  */
 
-const sharedDef = require("../../shared/Def.js");
+// Refactored from the original source code, so that shared definitions can be used
+let ClientDef = {};
 
-Def = {};
-
-Def.webquake_version = 54;
-Def.timedate = "August 2021\n";
-
-Def.max_edicts = sharedDef.max_edicts;
-
-Def.stat = sharedDef.stat;
-
-Def.it = sharedDef.it;
-
-Def.rit = sharedDef.rit;
-
-Def.hit = sharedDef.hit;
-
-Def.socket_protocol_id = sharedDef.socket_protocol_id;
+// Running in a browser environment
+if (typeof window !== "undefined" && window.Def) {
+  const sharedDef = window.Def;
+  Object.assign(ClientDef, sharedDef);
+  ClientDef.webquake_version = 54;
+  ClientDef.timedate = "August 2021\n";
+} else if (typeof require !== "undefined") {
+  // Node.js environment fallback (unused at the moment)
+  const sharedDef = require("../../shared/Def.js");
+  Object.assign(ClientDef, sharedDef);
+  ClientDef.webquake_version = 54;
+  ClientDef.timedate = "August 2021\n";
+}

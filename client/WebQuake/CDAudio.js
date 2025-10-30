@@ -20,9 +20,10 @@ const CDAudio = {
       return;
     }
     const xhr = new XMLHttpRequest();
-    for (let i = 1, foundAnyTrack = true; i <= 99 && foundAnyTrack; ++i) {
+    // Fix: as with the original Quake, audio tracks start at 2 (1 is the data track)
+    for (let i = 2, foundAnyTrack = true; i <= 99 && foundAnyTrack; ++i) {
       foundAnyTrack = false;
-      const track = `/media/quake${i <= 9 ? "0" : ""}${i}.ogg`;
+      const track = `/music/track${i <= 9 ? "0" : ""}${i}.ogg`;
       for (let j = COM.searchpaths.length - 1; j >= 0; --j) {
         xhr.open("HEAD", COM.searchpaths[j].filename + track, false);
         xhr.send();

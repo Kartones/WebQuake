@@ -514,7 +514,7 @@ CL.AdjustAngles = function () {
       speed *
       CL.yawspeed.value *
       (CL.KeyState(CL.kbutton.left) - CL.KeyState(CL.kbutton.right));
-    angles[1] = Vec.Anglemod(angles[1]);
+    angles[1] = ClientVec.Anglemod(angles[1]);
   }
   if ((CL.kbuttons[CL.kbutton.klook].state & 1) !== 0) {
     V.StopPitchDrift();
@@ -932,7 +932,7 @@ CL.RelinkEntities = function () {
     }
   }
 
-  var bobjrotate = Vec.Anglemod(100.0 * CL.state.time);
+  var bobjrotate = ClientVec.Anglemod(100.0 * CL.state.time);
   var ent,
     oldorg = [],
     dl;
@@ -947,8 +947,8 @@ CL.RelinkEntities = function () {
     oldorg[1] = ent.origin[1];
     oldorg[2] = ent.origin[2];
     if (ent.forcelink === true) {
-      Vec.Copy(ent.msg_origins[0], ent.origin);
-      Vec.Copy(ent.msg_angles[0], ent.angles);
+      ClientVec.Copy(ent.msg_origins[0], ent.origin);
+      ClientVec.Copy(ent.msg_angles[0], ent.angles);
     } else {
       f = frac;
       for (j = 0; j <= 2; ++j) {
@@ -969,7 +969,7 @@ CL.RelinkEntities = function () {
     if ((ent.effects & Mod.effects.muzzleflash) !== 0) {
       dl = CL.AllocDlight(i);
       var fv = [];
-      Vec.AngleVectors(ent.angles, fv);
+      ClientVec.AngleVectors(ent.angles, fv);
       dl.origin = [
         ent.origin[0] + 18.0 * fv[0],
         ent.origin[1] + 18.0 * fv[1],
@@ -1317,8 +1317,8 @@ CL.ParseUpdate = function (bits) {
   ent.effects =
     (bits & Protocol.u.effects) !== 0 ? MSG.ReadByte() : ent.baseline.effects;
 
-  Vec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
-  Vec.Copy(ent.msg_angles[0], ent.msg_angles[1]);
+  ClientVec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
+  ClientVec.Copy(ent.msg_angles[0], ent.msg_angles[1]);
   ent.msg_origins[0][0] =
     (bits & Protocol.u.origin1) !== 0
       ? MSG.ReadCoord()
@@ -1341,10 +1341,10 @@ CL.ParseUpdate = function (bits) {
   if ((bits & Protocol.u.nolerp) !== 0) ent.forcelink = true;
 
   if (forcelink === true) {
-    Vec.Copy(ent.msg_origins[0], ent.origin);
-    Vec.Copy(ent.origin, ent.msg_origins[1]);
-    Vec.Copy(ent.msg_angles[0], ent.angles);
-    Vec.Copy(ent.angles, ent.msg_angles[1]);
+    ClientVec.Copy(ent.msg_origins[0], ent.origin);
+    ClientVec.Copy(ent.origin, ent.msg_origins[1]);
+    ClientVec.Copy(ent.msg_angles[0], ent.angles);
+    ClientVec.Copy(ent.angles, ent.msg_angles[1]);
     ent.forcelink = true;
   }
 };
@@ -1407,21 +1407,21 @@ CL.ParseClientdata = function (bits) {
   CL.state.onground = (bits & Protocol.su.onground) !== 0;
   CL.state.inwater = (bits & Protocol.su.inwater) !== 0;
 
-  CL.state.stats[Def.stat.weaponframe] =
+  CL.state.stats[ClientDef.stat.weaponframe] =
     (bits & Protocol.su.weaponframe) !== 0 ? MSG.ReadByte() : 0;
-  CL.state.stats[Def.stat.armor] =
+  CL.state.stats[ClientDef.stat.armor] =
     (bits & Protocol.su.armor) !== 0 ? MSG.ReadByte() : 0;
-  CL.state.stats[Def.stat.weapon] =
+  CL.state.stats[ClientDef.stat.weapon] =
     (bits & Protocol.su.weapon) !== 0 ? MSG.ReadByte() : 0;
-  CL.state.stats[Def.stat.health] = MSG.ReadShort();
-  CL.state.stats[Def.stat.ammo] = MSG.ReadByte();
-  CL.state.stats[Def.stat.shells] = MSG.ReadByte();
-  CL.state.stats[Def.stat.nails] = MSG.ReadByte();
-  CL.state.stats[Def.stat.rockets] = MSG.ReadByte();
-  CL.state.stats[Def.stat.cells] = MSG.ReadByte();
+  CL.state.stats[ClientDef.stat.health] = MSG.ReadShort();
+  CL.state.stats[ClientDef.stat.ammo] = MSG.ReadByte();
+  CL.state.stats[ClientDef.stat.shells] = MSG.ReadByte();
+  CL.state.stats[ClientDef.stat.nails] = MSG.ReadByte();
+  CL.state.stats[ClientDef.stat.rockets] = MSG.ReadByte();
+  CL.state.stats[ClientDef.stat.cells] = MSG.ReadByte();
   if (COM.standard_quake === true)
-    CL.state.stats[Def.stat.activeweapon] = MSG.ReadByte();
-  else CL.state.stats[Def.stat.activeweapon] = 1 << MSG.ReadByte();
+    CL.state.stats[ClientDef.stat.activeweapon] = MSG.ReadByte();
+  else CL.state.stats[ClientDef.stat.activeweapon] = 1 << MSG.ReadByte();
 };
 
 /**
@@ -1638,10 +1638,10 @@ CL.ParseServerMessage = function () {
         CL.SignonReply();
         continue;
       case Protocol.svc.killedmonster:
-        ++CL.state.stats[Def.stat.monsters];
+        ++CL.state.stats[ClientDef.stat.monsters];
         continue;
       case Protocol.svc.foundsecret:
-        ++CL.state.stats[Def.stat.secrets];
+        ++CL.state.stats[ClientDef.stat.secrets];
         continue;
       case Protocol.svc.updatestat:
         i = MSG.ReadByte();
@@ -1757,21 +1757,21 @@ CL.ParseTEnt = function () {
   var dl;
   switch (type) {
     case Protocol.te.wizspike:
-      R.RunParticleEffect(pos, Vec.origin, 20, 20);
+      R.RunParticleEffect(pos, ClientVec.origin, 20, 20);
       S.StartSound(-1, 0, CL.sfx_wizhit, pos, 1.0, 1.0);
       return;
     case Protocol.te.knightspike:
-      R.RunParticleEffect(pos, Vec.origin, 226, 20);
+      R.RunParticleEffect(pos, ClientVec.origin, 226, 20);
       S.StartSound(-1, 0, CL.sfx_knighthit, pos, 1.0, 1.0);
       return;
     case Protocol.te.spike:
-      R.RunParticleEffect(pos, Vec.origin, 0, 10);
+      R.RunParticleEffect(pos, ClientVec.origin, 0, 10);
       return;
     case Protocol.te.superspike:
-      R.RunParticleEffect(pos, Vec.origin, 0, 20);
+      R.RunParticleEffect(pos, ClientVec.origin, 0, 20);
       return;
     case Protocol.te.gunshot:
-      R.RunParticleEffect(pos, Vec.origin, 0, 20);
+      R.RunParticleEffect(pos, ClientVec.origin, 0, 20);
       return;
     case Protocol.te.explosion:
       R.ParticleExplosion(pos);
@@ -1836,7 +1836,7 @@ CL.UpdateTEnts = function () {
     b = CL.beams[i];
     if (b.model == null || b.endtime < CL.state.time) continue;
     if (b.entity === CL.state.viewentity)
-      Vec.Copy(CL.entities[CL.state.viewentity].origin, b.start);
+      ClientVec.Copy(CL.entities[CL.state.viewentity].origin, b.start);
     dist[0] = b.end[0] - b.start[0];
     dist[1] = b.end[1] - b.start[1];
     dist[2] = b.end[2] - b.start[2];
