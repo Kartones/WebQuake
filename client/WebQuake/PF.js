@@ -1,3 +1,5 @@
+/* globals: Cmd Con Cvar ED Host MSG Mod PR Protocol SV Vec */
+
 /**
  * Program Functions?
  */

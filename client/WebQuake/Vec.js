@@ -1,3 +1,5 @@
+/* globals: Vec */
+
 /**
  * Vector operations
  */

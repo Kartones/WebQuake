@@ -1,3 +1,5 @@
+/* globals: CL Chase Cmd Con Cvar Host MSG Mod Q R SCR V Vec */
+
 /**
  * View rendering and camera management.
  */

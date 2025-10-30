@@ -1,3 +1,5 @@
+/* globals: Cmd Con Host Q SV */
+
 /**
  * Console variables (cvars) - configuration settings and game state variables.
  */

@@ -1,3 +1,5 @@
+/* globals: CDAudio COM Chase Cmd Con Cvar Host IN MSG Mod NET Protocol Q R S SCR SV Sys V Vec */
+
 /**
  * Client module - handles client state, input, server communication, and entity management.
  */

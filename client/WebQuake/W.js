@@ -1,3 +1,5 @@
+/* globals: COM Q Sys W */
+
 /**
  * Provides access to WAD (Where's All the Data) resource files.
  */

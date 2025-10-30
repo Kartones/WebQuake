@@ -1,3 +1,5 @@
+/* globals: COM Cmd Con Cvar ED Host MSG Mod NET PF PR Protocol Q SCR SV SZ Sys V Vec */
+
 /**
  * Server-side game logic.
  */

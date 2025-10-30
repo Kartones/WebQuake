@@ -1,3 +1,5 @@
+/* globals: CL Cmd Con Cvar Draw GL Host Key M R S Sbar SCR V VID */
+
 /**
  * Screen related logic.
  * Drawing UI elements (including the console), taking screenshots, loading text (image really).

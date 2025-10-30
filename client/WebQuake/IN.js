@@ -1,3 +1,5 @@
+/* globals: CL COM Cvar Host Key V VID */
+
 /**
  * Input logic. Stripped down to only mouse handling
  */

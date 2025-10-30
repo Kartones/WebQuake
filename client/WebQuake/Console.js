@@ -1,3 +1,5 @@
+/* globals: CL COM Cmd Con Cvar Draw Host Key M S SCR VID */
+
 /**
  * Console module - handles console display, input, and message printing.
  */

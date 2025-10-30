@@ -1,3 +1,5 @@
+/* globals: CL COM Cmd Draw Host SCR Sbar VID */
+
 /**
  * Status bar rendering.
  */

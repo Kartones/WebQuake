@@ -1,3 +1,5 @@
+/* globals: CL Cmd Con Cvar Key M */
+
 /**
  * Keyboard input handling
  */

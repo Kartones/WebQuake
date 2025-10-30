@@ -1,3 +1,5 @@
+/* globals: COM Cmd Con Host PR Q SV Sys Vec */
+
 /**
  * Handling of Edicts (entities). Anything with behaviour, movement, etc. is an entity/edict, including enemies, laser beams, rockets and the like.
  * Edicts are put in a list (SV.server.edicts), and freed and their slots reused.

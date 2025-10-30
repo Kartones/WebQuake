@@ -1,3 +1,5 @@
+/* globals: Protocol */
+
 /**
  * Network protocol constants and message types for client-server communication.
  */

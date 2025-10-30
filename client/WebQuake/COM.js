@@ -1,3 +1,5 @@
+/* globals: CRC Cmd Con Cvar Draw Q Sys */
+
 /**
  * File I/O: pack files, textures, writing of files
  */

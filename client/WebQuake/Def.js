@@ -1,3 +1,5 @@
+/* globals: Def */
+
 /**
  * Some basic definitions
  */

@@ -1,3 +1,5 @@
+/* globals: COM Cmd Con Cvar SCR Sys VID */
+
 /**
  * GLQuake's client code (adapted to WebGL). Low-level drawing logic for GL.
  */

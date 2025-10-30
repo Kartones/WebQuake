@@ -1,3 +1,5 @@
+/* globals: COM CRC Cmd Con Cvar ED Host PF Q SV Sys */
+
 /**
  * Program (progs.dat) VM and execution.
  */

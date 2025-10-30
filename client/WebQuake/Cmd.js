@@ -1,3 +1,5 @@
+/* globals: CL COM Con Cvar MSG Protocol */
+
 /**
  * Commands are generated mostly via the console, but can also come from the server or even direct keystrokes.
  * source: https://fabiensanglard.net/quakeSource/index.php

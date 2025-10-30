@@ -1,3 +1,5 @@
+/* globals: CL Con Cvar Host NET SV Sys */
+
 /**
  * Network communication module.
  */

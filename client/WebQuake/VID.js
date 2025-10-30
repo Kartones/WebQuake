@@ -1,3 +1,5 @@
+/* globals: COM GL Sys VID */
+
 /**
  * Legacy video driver functions. Most of it probably wiped out as doesn't applies to WebQuake.
  */

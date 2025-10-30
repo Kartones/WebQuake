@@ -1,3 +1,5 @@
+/* globals: CL COM Chase Cmd Con Cvar GL Host MSG Mod PR Q R SCR SV Sys V VID Vec */
+
 /**
  * Rendition module (renderer logic)
  *

@@ -1,3 +1,5 @@
+/* globals: Q Sys */
+
 /**
  * Contains some helper functions to handle strings, int arrays, floats, etc. and conversions between them.
  */

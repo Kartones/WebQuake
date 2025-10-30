@@ -1,3 +1,5 @@
+/* globals: CL COM Cmd Con Cvar Host Mod Q S Vec */
+
 /**
  * Sound system: manages audio playback, spatialisation, and ambient sounds.
  */

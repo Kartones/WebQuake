@@ -1,3 +1,5 @@
+/* globals: NET Sys */
+
 /**
  * Loopback network driver for local play.
  */

@@ -1,3 +1,5 @@
+/* globals: CL Cvar R SV Vec */
+
 /**
  * Player chase cam. For multiplayer?
  */

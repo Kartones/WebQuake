@@ -1,3 +1,5 @@
+/* globals: COM Con Host Key Q Sys VID */
+
 /**
  * Equivalent to `sys_win.c`.  Main entry point, as contains `window.onload` function, plus other base bindings.
  */

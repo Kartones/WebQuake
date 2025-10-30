@@ -1,3 +1,5 @@
+/* globals: CL COM Cmd Con Cvar Draw GL Host Key M S SCR SV V VID */
+
 /**
  * Menus logic, drawing and input handling.
  */

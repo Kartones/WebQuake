@@ -1,3 +1,5 @@
+/* globals: COM GL Sys VID W */
+
 /**
  * 2D Drawing logic, backed by WebGL.
  */

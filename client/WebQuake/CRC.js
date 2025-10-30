@@ -1,3 +1,5 @@
+/* globals: CRC */
+
 /**
  * CRC (Cyclic Redundancy Check) calculation for data validation.
  */

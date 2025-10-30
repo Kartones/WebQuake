@@ -1,3 +1,5 @@
+/* globals: MSG NET Q SZ */
+
 /**
  * Handles reading and writing messages.
  * Reads from NET.message, writes specified `sb` buffer

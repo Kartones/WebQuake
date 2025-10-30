@@ -1,3 +1,5 @@
+/* globals: CDAudio CL COM Chase Cmd Con Cvar Draw ED IN Key M MSG Mod NET PR Protocol Q R S SCR SV SZ Sbar Sys V VID Vec W */
+
 /**
  * Host logic and commands (including console commands, cheats and the like)
  */

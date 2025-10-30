@@ -1,3 +1,5 @@
+/* globals: NET */
+
 /**
  * WebSocket network driver for multiplayer.
  */

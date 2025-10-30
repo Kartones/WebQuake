@@ -1,3 +1,5 @@
+/* globals: COM Con GL Mod Q R Sys VID Vec */
+
 /**
  * Models logic: Alias 3D models, sprites and brushes
  */
