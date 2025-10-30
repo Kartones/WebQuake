@@ -81,5 +81,4 @@ const Def = {
   },
 };
 
-// default cjs export
 module.exports = Def;

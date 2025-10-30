@@ -1,3 +1,5 @@
+/* globals: Vec */
+
 /**
  * Vector operations
  */
@@ -14,6 +16,9 @@ Vec.CrossProduct = sharedVec.CrossProduct;
 Vec.Length = sharedVec.Length;
 Vec.Normalize = sharedVec.Normalize;
 
+/**
+ * Perpendicular function.
+ */
 Vec.Perpendicular = function (v) {
   let pos = 0;
   let minelem = 1;
@@ -43,6 +48,9 @@ Vec.Perpendicular = function (v) {
   return dst;
 };
 
+/**
+ * RotatePointAroundVector function.
+ */
 Vec.RotatePointAroundVector = function (dir, point, degrees) {
   const r = Vec.Perpendicular(dir);
   const up = Vec.CrossProduct(r, dir);
@@ -71,6 +79,9 @@ Vec.RotatePointAroundVector = function (dir, point, degrees) {
   ];
 };
 
+/**
+ * DotProduct function.
+ */
 Vec.DotProduct = function (v1, v2) {
   return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 };
@@ -86,6 +97,9 @@ Vec.Copy = function (v1, v2) {
   v2[2] = v1[2];
 };
 
+/**
+ * ConcatRotations function.
+ */
 Vec.ConcatRotations = function (m1, m2) {
   return [
     [

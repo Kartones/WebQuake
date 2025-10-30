@@ -1,9 +1,17 @@
+/* globals: CL COM Cmd Con Cvar Draw Host Key M S SCR VID */
+
+/**
+ * Console module - handles console display, input, and message printing.
+ */
 Con = {};
 
 Con.backscroll = 0;
 Con.current = 0;
 Con.text = [];
 
+/**
+ * Toggle console visibility.
+ */
 Con.ToggleConsole_f = function () {
     SCR.EndLoadingPlaque();
     if (Key.dest.value === Key.dest.console) {
@@ -19,12 +27,18 @@ Con.ToggleConsole_f = function () {
     Key.dest.value = Key.dest.console;
 };
 
+/**
+ * Clear console text history.
+ */
 Con.Clear_f = function () {
     Con.backscroll = 0;
     Con.current = 0;
     Con.text = [];
 };
 
+/**
+ * Clear notify lines that have timed out.
+ */
 Con.ClearNotify = function () {
     var i = Con.text.length - 4;
     if (i < 0)
@@ -33,16 +47,25 @@ Con.ClearNotify = function () {
         Con.text[i].time = 0.0;
 };
 
+/**
+ * Enter message mode for team chat.
+ */
 Con.MessageMode_f = function () {
     Key.dest.value = Key.dest.message;
     Key.team_message = false;
 };
 
+/**
+ * Enter message mode for private message.
+ */
 Con.MessageMode2_f = function () {
     Key.dest.value = Key.dest.message;
     Key.team_message = true;
 };
 
+/**
+ * Initialize console subsystem.
+ */
 Con.Init = function () {
     Con.debuglog = (COM.CheckParm('-condebug') != null);
     if (Con.debuglog === true)
@@ -56,6 +79,10 @@ Con.Init = function () {
     Cmd.AddCommand('clear', Con.Clear_f);
 };
 
+/**
+ * Print a message to the console.
+ * @param {string} msg - The message to print.
+ */
 Con.Print = function (msg) {
     if (Con.debuglog === true) {
         var data = COM.LoadTextFile('qconsole.log');
@@ -93,11 +120,18 @@ Con.Print = function (msg) {
     }
 };
 
+/**
+ * Print a debug message to the console (when developer mode is on).
+ * @param {string} msg - The debug message to print.
+ */
 Con.DPrint = function (msg) {
     if (Host.developer.value !== 0)
         Con.Print(msg);
 };
 
+/**
+ * Draw console input line.
+ */
 Con.DrawInput = function () {
     if ((Key.dest.value !== Key.dest.console) && (Con.forcedup !== true))
         return;
@@ -108,6 +142,9 @@ Con.DrawInput = function () {
     Draw.String(8, Con.vislines - 16, text);
 };
 
+/**
+ * Draw notify lines on screen.
+ */
 Con.DrawNotify = function () {
     var width = (VID.width >> 3) - 2;
     var i = Con.text.length - 4, v = 0;
@@ -123,6 +160,10 @@ Con.DrawNotify = function () {
         Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + ((Host.realtime * 4.0) & 1)));
 };
 
+/**
+ * Draw console background and text.
+ * @param {number} lines - Number of console lines to display.
+ */
 Con.DrawConsole = function (lines) {
     if (lines <= 0)
         return;

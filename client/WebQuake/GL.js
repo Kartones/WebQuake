@@ -1,3 +1,5 @@
+/* globals: COM Cmd Con Cvar SCR Sys VID */
+
 /**
  * GLQuake's client code (adapted to WebGL). Low-level drawing logic for GL.
  */
@@ -20,6 +22,12 @@ GL.ortho = [
 
 GL.identity = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
 
+/**
+ * Bind a texture to a specific target.
+ * @param {number} target - Texture unit target.
+ * @param {number} texnum - Texture number.
+ * @param {boolean} flushStream - Whether to flush stream before binding.
+ */
 GL.Bind = function (target, texnum, flushStream) {
     if (GL.currenttextures[target] !== texnum) {
         if (flushStream === true)
@@ -33,6 +41,9 @@ GL.Bind = function (target, texnum, flushStream) {
     }
 };
 
+/**
+ * Handle texture filtering mode command.
+ */
 GL.TextureMode_f = function () {
     var i;
     if (Cmd.argv.length <= 1) {
@@ -63,6 +74,9 @@ GL.TextureMode_f = function () {
     }
 };
 
+/**
+ * Set up 2D orthographic projection matrix.
+ */
 GL.Set2D = function () {
     gl.viewport(0, 0, (VID.width * SCR.devicePixelRatio) >> 0, (VID.height * SCR.devicePixelRatio) >> 0);
     GL.UnbindProgram();
@@ -78,6 +92,15 @@ GL.Set2D = function () {
     gl.enable(gl.BLEND);
 };
 
+/**
+ * Resample texture data to different dimensions.
+ * @param {Uint8Array} data - Texture data.
+ * @param {number} inwidth - Input width.
+ * @param {number} inheight - Input height.
+ * @param {number} outwidth - Output width.
+ * @param {number} outheight - Output height.
+ * @returns {Uint8Array} Resampled texture data.
+ */
 GL.ResampleTexture = function (data, inwidth, inheight, outwidth, outheight) {
     var outdata = new ArrayBuffer(outwidth * outheight);
     var out = new Uint8Array(outdata);
@@ -93,6 +116,12 @@ GL.ResampleTexture = function (data, inwidth, inheight, outwidth, outheight) {
     return out;
 };
 
+/**
+ * Upload texture data to GPU.
+ * @param {Uint8Array} data - Texture data.
+ * @param {number} width - Texture width.
+ * @param {number} height - Texture height.
+ */
 GL.Upload = function (data, width, height) {
     var scaled_width = width, scaled_height = height;
     if (((width & (width - 1)) !== 0) || ((height & (height - 1)) !== 0)) {
@@ -131,6 +160,14 @@ GL.Upload = function (data, width, height) {
     gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, GL.filter_max);
 };
 
+/**
+ * Load a texture into GPU memory.
+ * @param {string} identifier - Unique texture identifier.
+ * @param {number} width - Texture width.
+ * @param {number} height - Texture height.
+ * @param {Uint8Array} data - Texture data.
+ * @returns {number} Texture handle.
+ */
 GL.LoadTexture = function (identifier, width, height, data) {
     var glt, i;
     if (identifier.length !== 0) {
@@ -181,6 +218,11 @@ GL.LoadTexture = function (identifier, width, height, data) {
     return glt;
 };
 
+/**
+ * Load a picture object as a texture.
+ * @param {object} pic - Picture object.
+ * @returns {number} Texture handle.
+ */
 GL.LoadPicTexture = function (pic) {
     var data = pic.data, scaled_width = pic.width, scaled_height = pic.height;
     if (((pic.width & (pic.width - 1)) !== 0) || ((pic.height & (pic.height - 1)) !== 0)) {
@@ -221,6 +263,14 @@ GL.LoadPicTexture = function (pic) {
     return texnum;
 };
 
+/**
+ * Create a shader program.
+ * @param {string} identifier - Program identifier.
+ * @param {object} uniforms - Uniform variable names and types.
+ * @param {object} attribs - Attribute variable names and types.
+ * @param {object} textures - Texture bindings.
+ * @returns {object} Compiled program object.
+ */
 GL.CreateProgram = function (identifier, uniforms, attribs, textures) {
     var p = gl.createProgram();
     var program =
@@ -287,6 +337,12 @@ GL.CreateProgram = function (identifier, uniforms, attribs, textures) {
     return program;
 };
 
+/**
+ * Switch to using a shader program.
+ * @param {string} identifier - Program identifier.
+ * @param {boolean} flushStream - Whether to flush stream before switching.
+ * @returns {object} The program object.
+ */
 GL.UseProgram = function (identifier, flushStream) {
     var currentProgram = GL.currentProgram;
     if (currentProgram != null) {
@@ -326,6 +382,9 @@ GL.UseProgram = function (identifier, flushStream) {
     return program;
 };
 
+/**
+ * Unbind the current shader program.
+ */
 GL.UnbindProgram = function () {
     if (GL.currentProgram == null)
         return;
@@ -336,6 +395,13 @@ GL.UnbindProgram = function () {
     GL.currentProgram = null;
 };
 
+/**
+ * Generate a rotation matrix from pitch, yaw, roll angles.
+ * @param {number} pitch - Pitch angle.
+ * @param {number} yaw - Yaw angle.
+ * @param {number} roll - Roll angle.
+ * @returns {number[]} 3x3 rotation matrix.
+ */
 GL.RotationMatrix = function (pitch, yaw, roll) {
     pitch *= Math.PI / -180.0;
     yaw *= Math.PI / 180.0;
@@ -353,6 +419,9 @@ GL.RotationMatrix = function (pitch, yaw, roll) {
     ];
 };
 
+/**
+ * Flush pending draw commands to GPU.
+ */
 GL.StreamFlush = function () {
     if (GL.streamArrayVertexCount === 0)
         return;
@@ -373,8 +442,13 @@ GL.StreamFlush = function () {
     }
     GL.streamArrayPosition = 0;
     GL.streamArrayVertexCount = 0;
-}
+};
 
+/**
+ * Allocate space in vertex stream buffer.
+ * @param {number} vertexCount - Number of vertices to allocate.
+ * @returns {number} Buffer offset.
+ */
 GL.StreamGetSpace = function (vertexCount) {
     var program = GL.currentProgram;
     if (program == null)
@@ -385,21 +459,34 @@ GL.StreamGetSpace = function (vertexCount) {
         GL.streamBufferPosition = 0;
     }
     GL.streamArrayVertexCount += vertexCount;
-}
+};
 
+/**
+ * Write a single float to vertex stream.
+ * @param {number} x - The float value.
+ */
 GL.StreamWriteFloat = function (x) {
     GL.streamArrayView.setFloat32(GL.streamArrayPosition, x, true);
     GL.streamArrayPosition += 4;
-}
+};
 
+/**
+ * StreamWriteFloat2 function.
+ */
 GL.StreamWriteFloat2 = function (x, y) {
     var view = GL.streamArrayView;
     var position = GL.streamArrayPosition;
     view.setFloat32(position, x, true);
     view.setFloat32(position + 4, y, true);
     GL.streamArrayPosition += 8;
-}
+};
 
+/**
+ * Write three floats to vertex stream.
+ * @param {number} x - First float.
+ * @param {number} y - Second float.
+ * @param {number} z - Third float.
+ */
 GL.StreamWriteFloat3 = function (x, y, z) {
     var view = GL.streamArrayView;
     var position = GL.streamArrayPosition;
@@ -407,8 +494,11 @@ GL.StreamWriteFloat3 = function (x, y, z) {
     view.setFloat32(position + 4, y, true);
     view.setFloat32(position + 8, z, true);
     GL.streamArrayPosition += 12;
-}
+};
 
+/**
+ * StreamWriteFloat4 function.
+ */
 GL.StreamWriteFloat4 = function (x, y, z, w) {
     var view = GL.streamArrayView;
     var position = GL.streamArrayPosition;
@@ -417,8 +507,15 @@ GL.StreamWriteFloat4 = function (x, y, z, w) {
     view.setFloat32(position + 8, z, true);
     view.setFloat32(position + 12, w, true);
     GL.streamArrayPosition += 16;
-}
+};
 
+/**
+ * Write four unsigned bytes to vertex stream.
+ * @param {number} x - First byte.
+ * @param {number} y - Second byte.
+ * @param {number} z - Third byte.
+ * @param {number} w - Fourth byte.
+ */
 GL.StreamWriteUByte4 = function (x, y, z, w) {
     var view = GL.streamArrayView;
     var position = GL.streamArrayPosition;
@@ -427,8 +524,19 @@ GL.StreamWriteUByte4 = function (x, y, z, w) {
     view.setUint8(position + 2, z);
     view.setUint8(position + 3, w);
     GL.streamArrayPosition += 4;
-}
+};
 
+/**
+ * Draw a textured quad to the vertex stream.
+ * @param {number} x - Screen x position.
+ * @param {number} y - Screen y position.
+ * @param {number} w - Width.
+ * @param {number} h - Height.
+ * @param {number} u - Texture u coordinate.
+ * @param {number} v - Texture v coordinate.
+ * @param {number} u2 - Texture u2 coordinate.
+ * @param {number} v2 - Texture v2 coordinate.
+ */
 GL.StreamDrawTexturedQuad = function (x, y, w, h, u, v, u2, v2) {
     var x2 = x + w, y2 = y + h;
     GL.StreamGetSpace(6);
@@ -438,8 +546,19 @@ GL.StreamDrawTexturedQuad = function (x, y, w, h, u, v, u2, v2) {
     GL.StreamWriteFloat4(x2, y, u2, v);
     GL.StreamWriteFloat4(x, y2, u, v2);
     GL.StreamWriteFloat4(x2, y2, u2, v2);
-}
+};
 
+/**
+ * Draw a colored quad to the vertex stream.
+ * @param {number} x - Screen x position.
+ * @param {number} y - Screen y position.
+ * @param {number} w - Width.
+ * @param {number} h - Height.
+ * @param {number} r - Red component (0-1).
+ * @param {number} g - Green component (0-1).
+ * @param {number} b - Blue component (0-1).
+ * @param {number} a - Alpha component (0-1).
+ */
 GL.StreamDrawColoredQuad = function (x, y, w, h, r, g, b, a) {
     var x2 = x + w, y2 = y + h;
     GL.StreamGetSpace(6);
@@ -455,8 +574,11 @@ GL.StreamDrawColoredQuad = function (x, y, w, h, r, g, b, a) {
     GL.StreamWriteUByte4(r, g, b, a);
     GL.StreamWriteFloat2(x2, y2);
     GL.StreamWriteUByte4(r, g, b, a);
-}
+};
 
+/**
+ * Initialize WebGL rendering context and compile shaders.
+ */
 GL.Init = function () {
     VID.mainwindow = document.getElementById('mainwindow');
     try {

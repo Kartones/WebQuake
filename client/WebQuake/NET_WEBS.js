@@ -1,3 +1,8 @@
+/* globals: NET */
+
+/**
+ * WebSocket network driver for multiplayer.
+ */
 WEBS = {};
 
 WEBS.Init = function () {
@@ -7,6 +12,9 @@ WEBS.Init = function () {
   return true;
 };
 
+/**
+ * Connect function.
+ */
 WEBS.Connect = function (host) {
   if (host.length <= 5) return;
   if (host.charCodeAt(5) === 47) return;
@@ -29,8 +37,14 @@ WEBS.Connect = function (host) {
   return 0;
 };
 
+/**
+ * CheckNewConnections function.
+ */
 WEBS.CheckNewConnections = function () {};
 
+/**
+ * GetMessage function.
+ */
 WEBS.GetMessage = function (sock) {
   if (sock.driverdata == null) return -1;
   if (sock.driverdata.readyState !== 1) return -1;
@@ -41,6 +55,9 @@ WEBS.GetMessage = function (sock) {
   return message[0];
 };
 
+/**
+ * SendMessage function.
+ */
 WEBS.SendMessage = function (sock, data) {
   if (sock.driverdata == null) return -1;
   if (sock.driverdata.readyState !== 1) return -1;
@@ -52,6 +69,9 @@ WEBS.SendMessage = function (sock, data) {
   return 1;
 };
 
+/**
+ * SendUnreliableMessage function.
+ */
 WEBS.SendUnreliableMessage = function (sock, data) {
   if (sock.driverdata == null) return -1;
   if (sock.driverdata.readyState !== 1) return -1;
@@ -63,24 +83,39 @@ WEBS.SendUnreliableMessage = function (sock, data) {
   return 1;
 };
 
+/**
+ * CanSendMessage function.
+ */
 WEBS.CanSendMessage = function (sock) {
   if (sock.driverdata == null) return;
   if (sock.driverdata.readyState === 1) return true;
 };
 
+/**
+ * Close function.
+ */
 WEBS.Close = function (sock) {
   if (sock.driverdata != null) sock.driverdata.close(1000);
 };
 
+/**
+ * CheckForResend function.
+ */
 WEBS.CheckForResend = function () {
   if (NET.newsocket.driverdata.readyState === 1) return 1;
   if (NET.newsocket.driverdata.readyState !== 0) return -1;
 };
 
+/**
+ * OnError function.
+ */
 WEBS.OnError = function () {
   NET.Close(this.data_socket);
 };
 
+/**
+ * OnMessage function.
+ */
 WEBS.OnMessage = function (message) {
   var data = message.data;
   if (typeof data === "string") return;
