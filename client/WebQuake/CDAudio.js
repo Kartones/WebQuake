@@ -1,4 +1,4 @@
-/* globals Cmd COM Con Cvar Q S */
+/* globals: Cmd COM Con Cvar Q S */
 
 /**
  * Music logic. Legacy name, as WebQuake uses ogg music files if present

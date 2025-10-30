@@ -33,9 +33,9 @@ node Server/WebQDS.js
 
 Based on [Fabien Sanglard's excellent Quake source code review](https://fabiensanglard.net/quakeSource/index.php).
 
-[ASCII Table](https://kartones.net/demos/016/index.html): Useful for charCode conversions.
+[ASCII Table](https://kartones.net/demos/016/): Useful for charCode conversions.
 
-Documentation is being added to each Javascript file.
+Documentation is being added to each Javascript file, and a `docs` folder will contain diagrams and other notes.
 
 ## Client
 
