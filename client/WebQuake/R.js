@@ -39,7 +39,7 @@ R.SplitEntityOnNode = function (node) {
     R.currententity.leafs[R.currententity.leafs.length] = node.num - 1;
     return;
   }
-  var sides = Vec.BoxOnPlaneSide(R.emins, R.emaxs, node.plane);
+  var sides = ClientVec.BoxOnPlaneSide(R.emins, R.emaxs, node.plane);
   if ((sides & 1) !== 0) R.SplitEntityOnNode(node.children[0]);
   if ((sides & 2) !== 0) R.SplitEntityOnNode(node.children[1]);
 };
@@ -94,7 +94,7 @@ R.RenderDlights = function () {
     l = CL.dlights[i];
     if (l.die < CL.state.time || l.radius === 0.0) continue;
     if (
-      Vec.Length([
+      ClientVec.Length([
         l.origin[0] - R.refdef.vieworg[0],
         l.origin[1] - R.refdef.vieworg[1],
         l.origin[2] - R.refdef.vieworg[2],
@@ -261,8 +261,8 @@ R.RecursiveLightPoint = function (node, start, end) {
 
     tex = CL.state.worldmodel.texinfo[surf.texinfo];
 
-    s = Vec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3];
-    t = Vec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3];
+    s = ClientVec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3];
+    t = ClientVec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3];
     if (s < surf.texturemins[0] || t < surf.texturemins[1]) continue;
 
     ds = s - surf.texturemins[0];
@@ -312,10 +312,10 @@ R.LightPoint = function (p) {
  * CullBox function.
  */
 R.CullBox = function (mins, maxs) {
-  if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[0]) === 2) return true;
-  if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[1]) === 2) return true;
-  if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[2]) === 2) return true;
-  if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[3]) === 2) return true;
+  if (ClientVec.BoxOnPlaneSide(mins, maxs, R.frustum[0]) === 2) return true;
+  if (ClientVec.BoxOnPlaneSide(mins, maxs, R.frustum[1]) === 2) return true;
+  if (ClientVec.BoxOnPlaneSide(mins, maxs, R.frustum[2]) === 2) return true;
+  if (ClientVec.BoxOnPlaneSide(mins, maxs, R.frustum[3]) === 2) return true;
 };
 
 /**
@@ -348,7 +348,7 @@ R.DrawSpriteModel = function (e) {
   if (e.model.oriented === true) {
     r = [];
     u = [];
-    Vec.AngleVectors(e.angles, null, r, u);
+    ClientVec.AngleVectors(e.angles, null, r, u);
   } else {
     r = R.vright;
     u = R.vup;
@@ -619,7 +619,7 @@ R.DrawAliasModel = function (e) {
     if (dl.die < CL.state.time) continue;
     add =
       dl.radius -
-      Vec.Length([
+      ClientVec.Length([
         e.origin[0] - dl.origin[0],
         e.origin[1] - dl.origin[1],
         e.origin[1] - dl.origin[1],
@@ -639,11 +639,11 @@ R.DrawAliasModel = function (e) {
   var forward = [],
     right = [],
     up = [];
-  Vec.AngleVectors(e.angles, forward, right, up);
+  ClientVec.AngleVectors(e.angles, forward, right, up);
   gl.uniform3fv(program.uLightVec, [
-    Vec.DotProduct([-1.0, 0.0, 0.0], forward),
-    -Vec.DotProduct([-1.0, 0.0, 0.0], right),
-    Vec.DotProduct([-1.0, 0.0, 0.0], up),
+    ClientVec.DotProduct([-1.0, 0.0, 0.0], forward),
+    -ClientVec.DotProduct([-1.0, 0.0, 0.0], right),
+    ClientVec.DotProduct([-1.0, 0.0, 0.0], up),
   ]);
 
   R.c_alias_polys += clmodel.numtris;
@@ -769,8 +769,8 @@ R.DrawViewModel = function () {
   if (R.drawviewmodel.value === 0) return;
   if (Chase.active.value !== 0) return;
   if (R.drawentities.value === 0) return;
-  if ((CL.state.items & Def.it.invisibility) !== 0) return;
-  if (CL.state.stats[Def.stat.health] <= 0) return;
+  if ((CL.state.items & ClientDef.it.invisibility) !== 0) return;
+  if (CL.state.stats[ClientDef.stat.health] <= 0) return;
   if (CL.state.viewent.model == null) return;
 
   gl.depthRange(0.0, 0.3);
@@ -818,22 +818,22 @@ R.PolyBlend = function () {
  * SetFrustum function.
  */
 R.SetFrustum = function () {
-  R.frustum[0].normal = Vec.RotatePointAroundVector(
+  R.frustum[0].normal = ClientVec.RotatePointAroundVector(
     R.vup,
     R.vpn,
     -(90.0 - R.refdef.fov_x * 0.5)
   );
-  R.frustum[1].normal = Vec.RotatePointAroundVector(
+  R.frustum[1].normal = ClientVec.RotatePointAroundVector(
     R.vup,
     R.vpn,
     90.0 - R.refdef.fov_x * 0.5
   );
-  R.frustum[2].normal = Vec.RotatePointAroundVector(
+  R.frustum[2].normal = ClientVec.RotatePointAroundVector(
     R.vright,
     R.vpn,
     90.0 - R.refdef.fov_y * 0.5
   );
-  R.frustum[3].normal = Vec.RotatePointAroundVector(
+  R.frustum[3].normal = ClientVec.RotatePointAroundVector(
     R.vright,
     R.vpn,
     -(90.0 - R.refdef.fov_y * 0.5)
@@ -842,7 +842,7 @@ R.SetFrustum = function () {
   for (i = 0; i <= 3; ++i) {
     out = R.frustum[i];
     out.type = 5;
-    out.dist = Vec.DotProduct(R.refdef.vieworg, out.normal);
+    out.dist = ClientVec.DotProduct(R.refdef.vieworg, out.normal);
     out.signbits = 0;
     if (out.normal[0] < 0.0) out.signbits = 1;
     if (out.normal[1] < 0.0) out.signbits += 2;
@@ -943,7 +943,7 @@ R.SetupGL = function () {
 R.RenderScene = function () {
   if (CL.state.maxclients >= 2) Cvar.Set("r_fullbright", "0");
   R.AnimateLight();
-  Vec.AngleVectors(R.refdef.viewangles, R.vpn, R.vright, R.vup);
+  ClientVec.AngleVectors(R.refdef.viewangles, R.vpn, R.vright, R.vup);
   R.viewleaf = Mod.PointInLeaf(R.refdef.vieworg, CL.state.worldmodel);
   V.SetContentsColor(R.viewleaf.contents);
   V.CalcBlend();
@@ -1769,7 +1769,7 @@ R.LavaSplash = function (org) {
       dir[1] = (i + Math.random) * 8.0;
       dir[2] = 256.0;
       p.org = [org[0] + dir[0], org[1] + dir[1], org[2] + Math.random() * 64.0];
-      Vec.Normalize(dir);
+      ClientVec.Normalize(dir);
       vel = 50.0 + Math.random() * 64.0;
       p.vel = [dir[0] * vel, dir[1] * vel, dir[2] * vel];
     }
@@ -1804,7 +1804,7 @@ R.TeleportSplash = function (org) {
           org[1] + j + Math.random() * 4.0,
           org[2] + k + Math.random() * 4.0,
         ];
-        Vec.Normalize(dir);
+        ClientVec.Normalize(dir);
         vel = 50.0 + Math.random() * 64.0;
         p.vel = [dir[0] * vel, dir[1] * vel, dir[2] * vel];
       }
@@ -2024,7 +2024,8 @@ R.AddDynamicLights = function (surf) {
   for (i = 0; i <= 31; ++i) {
     if (((surf.dlightbits >>> i) & 1) === 0) continue;
     light = CL.dlights[i];
-    dist = Vec.DotProduct(light.origin, surf.plane.normal) - surf.plane.dist;
+    dist =
+      ClientVec.DotProduct(light.origin, surf.plane.normal) - surf.plane.dist;
     rad = light.radius - Math.abs(dist);
     minlight = light.minlight;
     if (rad < minlight) continue;
@@ -2033,11 +2034,11 @@ R.AddDynamicLights = function (surf) {
     impact[1] = light.origin[1] - surf.plane.normal[1] * dist;
     impact[2] = light.origin[2] - surf.plane.normal[2] * dist;
     local[0] =
-      Vec.DotProduct(impact, tex.vecs[0]) +
+      ClientVec.DotProduct(impact, tex.vecs[0]) +
       tex.vecs[0][3] -
       surf.texturemins[0];
     local[1] =
-      Vec.DotProduct(impact, tex.vecs[1]) +
+      ClientVec.DotProduct(impact, tex.vecs[1]) +
       tex.vecs[1][3] -
       surf.texturemins[1];
     for (t = 0; t < tmax; ++t) {
@@ -2449,8 +2450,8 @@ R.BuildSurfaceDisplayList = function (fa) {
     else vec = R.currentmodel.vertexes[R.currentmodel.edges[-index][1]];
     vert = [vec[0], vec[1], vec[2]];
     if (fa.sky !== true) {
-      s = Vec.DotProduct(vec, texinfo.vecs[0]) + texinfo.vecs[0][3];
-      t = Vec.DotProduct(vec, texinfo.vecs[1]) + texinfo.vecs[1][3];
+      s = ClientVec.DotProduct(vec, texinfo.vecs[0]) + texinfo.vecs[0][3];
+      t = ClientVec.DotProduct(vec, texinfo.vecs[1]) + texinfo.vecs[1][3];
       vert[3] = s / texture.width;
       vert[4] = t / texture.height;
       if (fa.turbulent !== true) {

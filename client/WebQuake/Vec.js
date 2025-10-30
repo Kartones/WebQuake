@@ -4,22 +4,23 @@
  * Vector operations
  */
 
-const sharedVec = require("../../shared/Vec.js");
+// Refactored from the original source code, so that shared definitions can be used
+let ClientVec = {};
 
-Vec = {};
-
-Vec.origin = sharedVec.origin;
-Vec.Anglemod = sharedVec.Anglemod;
-Vec.BoxOnPlaneSide = sharedVec.BoxOnPlaneSide;
-Vec.AngleVectors = sharedVec.AngleVectors;
-Vec.CrossProduct = sharedVec.CrossProduct;
-Vec.Length = sharedVec.Length;
-Vec.Normalize = sharedVec.Normalize;
+// Running in a browser environment
+if (typeof window !== "undefined" && window.Vec) {
+  const sharedVec = window.Vec;
+  Object.assign(ClientVec, sharedVec);
+} else if (typeof require !== "undefined") {
+  // Node.js environment fallback (unused at the moment)
+  const sharedVec = require("../../shared/Vec.js");
+  Object.assign(ClientVec, sharedVec);
+}
 
 /**
  * Perpendicular function.
  */
-Vec.Perpendicular = function (v) {
+ClientVec.Perpendicular = function (v) {
   let pos = 0;
   let minelem = 1;
   if (Math.abs(v[0]) < minelem) {
@@ -44,16 +45,16 @@ Vec.Perpendicular = function (v) {
     tempvec[1] - d * v[1] * inv_denom,
     tempvec[2] - d * v[2] * inv_denom,
   ];
-  Vec.Normalize(dst);
+  ClientVec.Normalize(dst);
   return dst;
 };
 
 /**
  * RotatePointAroundVector function.
  */
-Vec.RotatePointAroundVector = function (dir, point, degrees) {
-  const r = Vec.Perpendicular(dir);
-  const up = Vec.CrossProduct(r, dir);
+ClientVec.RotatePointAroundVector = function (dir, point, degrees) {
+  const r = ClientVec.Perpendicular(dir);
+  const up = ClientVec.CrossProduct(r, dir);
   const m = [
     [r[0], up[0], dir[0]],
     [r[1], up[1], dir[1]],
@@ -71,7 +72,7 @@ Vec.RotatePointAroundVector = function (dir, point, degrees) {
     [-s, c, 0],
     [0, 0, 1],
   ];
-  const rot = Vec.ConcatRotations(Vec.ConcatRotations(m, zrot), im);
+  const rot = ClientVec.ConcatRotations(ClientVec.ConcatRotations(m, zrot), im);
   return [
     rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2],
     rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2],
@@ -82,7 +83,7 @@ Vec.RotatePointAroundVector = function (dir, point, degrees) {
 /**
  * DotProduct function.
  */
-Vec.DotProduct = function (v1, v2) {
+ClientVec.DotProduct = function (v1, v2) {
   return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 };
 
@@ -91,7 +92,7 @@ Vec.DotProduct = function (v1, v2) {
  * @param {number[]} v1 - Source vector.
  * @param {number[]} v2 - Destination vector. This array will be modified.
  */
-Vec.Copy = function (v1, v2) {
+ClientVec.Copy = function (v1, v2) {
   v2[0] = v1[0];
   v2[1] = v1[1];
   v2[2] = v1[2];
@@ -100,7 +101,7 @@ Vec.Copy = function (v1, v2) {
 /**
  * ConcatRotations function.
  */
-Vec.ConcatRotations = function (m1, m2) {
+ClientVec.ConcatRotations = function (m1, m2) {
   return [
     [
       m1[0][0] * m2[0][0] + m1[0][1] * m2[1][0] + m1[0][2] * m2[2][0],

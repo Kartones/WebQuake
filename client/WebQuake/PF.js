@@ -54,7 +54,7 @@ PF.makevectors = function () {
   var forward = [],
     right = [],
     up = [];
-  Vec.AngleVectors(
+  ClientVec.AngleVectors(
     [PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
     forward,
     right,
@@ -121,7 +121,7 @@ PF.setmodel = function () {
   e.v_float[PR.entvars.modelindex] = i;
   var mod = SV.server.models[i];
   if (mod != null) PF.SetMinMaxSize(e, mod.mins, mod.maxs);
-  else PF.SetMinMaxSize(e, Vec.origin, Vec.origin);
+  else PF.SetMinMaxSize(e, ClientVec.origin, ClientVec.origin);
 };
 
 /**
@@ -168,7 +168,7 @@ PF.normalize = function () {
     PR.globals_float[5],
     PR.globals_float[6],
   ];
-  Vec.Normalize(newvalue);
+  ClientVec.Normalize(newvalue);
   PR.globals_float[1] = newvalue[0];
   PR.globals_float[2] = newvalue[1];
   PR.globals_float[3] = newvalue[2];
@@ -296,8 +296,8 @@ PF.breakstatement = function () {
 PF.traceline = function () {
   var trace = SV.Move(
     [PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
-    Vec.origin,
-    Vec.origin,
+    ClientVec.origin,
+    ClientVec.origin,
     [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
     PR.globals_float[10] >> 0,
     SV.server.edicts[PR.globals_int[13]]
@@ -766,7 +766,7 @@ PF.aim = function () {
     start[1] + 2048.0 * dir[1],
     start[2] + 2048.0 * dir[2],
   ];
-  var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
+  var tr = SV.Move(start, ClientVec.origin, ClientVec.origin, end, 0, ent);
   if (tr.ent != null) {
     if (
       tr.ent.v_float[PR.entvars.takedamage] === SV.damage.aim &&
@@ -809,10 +809,10 @@ PF.aim = function () {
     dir[0] = end[0] - start[0];
     dir[1] = end[1] - start[1];
     dir[2] = end[2] - start[2];
-    Vec.Normalize(dir);
+    ClientVec.Normalize(dir);
     dist = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
     if (dist < bestdist) continue;
-    tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
+    tr = SV.Move(start, ClientVec.origin, ClientVec.origin, end, 0, ent);
     if (tr.ent === check) {
       bestdist = dist;
       bestent = check;
@@ -829,7 +829,7 @@ PF.aim = function () {
     end[0] = bestdir[0] * dist;
     end[1] = bestdir[1] * dist;
     end[2] = dir[2];
-    Vec.Normalize(end);
+    ClientVec.Normalize(end);
     PR.globals_float[1] = end[0];
     PR.globals_float[2] = end[1];
     PR.globals_float[3] = end[2];
@@ -845,7 +845,7 @@ PF.aim = function () {
  */
 PF.changeyaw = function () {
   var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
-  var current = Vec.Anglemod(ent.v_float[PR.entvars.angles1]);
+  var current = ClientVec.Anglemod(ent.v_float[PR.entvars.angles1]);
   var ideal = ent.v_float[PR.entvars.ideal_yaw];
   if (current === ideal) return;
   var move = ideal - current;
@@ -856,7 +856,7 @@ PF.changeyaw = function () {
   if (move > 0.0) {
     if (move > speed) move = speed;
   } else if (move < -speed) move = -speed;
-  ent.v_float[PR.entvars.angles1] = Vec.Anglemod(current + move);
+  ent.v_float[PR.entvars.angles1] = ClientVec.Anglemod(current + move);
 };
 
 /**

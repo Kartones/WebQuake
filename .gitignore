@@ -2,6 +2,8 @@ id1/
 !id1/autoexec.cfg
 node_modules/
 
+.DS_Store
+
 # No need for this project
 package-lock.json
 pnpm-lock.yaml

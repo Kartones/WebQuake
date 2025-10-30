@@ -81,4 +81,9 @@ const Def = {
   },
 };
 
-module.exports = Def;
+// Support both browser and Node.js environments
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Def;
+} else {
+  window.Def = Def;
+}

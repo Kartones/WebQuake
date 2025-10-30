@@ -270,7 +270,12 @@ Host._Frame = function () {
     S.Update(R.refdef.vieworg, R.vpn, R.vright, R.vup);
     CL.DecayLights();
   } else {
-    S.Update(Vec.origin, Vec.origin, Vec.origin, Vec.origin);
+    S.Update(
+      ClientVec.origin,
+      ClientVec.origin,
+      ClientVec.origin,
+      ClientVec.origin
+    );
   }
 
   CDAudio.Update();
@@ -351,7 +356,7 @@ Host.Init = function () {
   Mod.Init();
   NET.Init();
   SV.Init();
-  Con.Print(Def.timedate);
+  Con.Print(ClientDef.timedate);
   VID.Init();
   Draw.Init();
   SCR.Init();
@@ -622,11 +627,11 @@ Host.SavegameComment = function () {
   for (i = CL.state.levelname.length; i <= 21; ++i) text += "_";
 
   text += "kills:";
-  var kills = CL.state.stats[Def.stat.monsters].toString();
+  var kills = CL.state.stats[ClientDef.stat.monsters].toString();
   if (kills.length === 2) text += "_";
   else if (kills.length === 1) text += "__";
   text += kills + "/";
-  kills = CL.state.stats[Def.stat.totalmonsters].toString();
+  kills = CL.state.stats[ClientDef.stat.totalmonsters].toString();
   if (kills.length === 2) text += "_";
   else if (kills.length === 1) text += "__";
   text += kills;
@@ -857,7 +862,7 @@ Host.Name_f = function () {
  */
 Host.Version_f = function () {
   Con.Print("Version 1.09\n");
-  Con.Print(Def.timedate);
+  Con.Print(ClientDef.timedate);
 };
 
 /**
@@ -1086,16 +1091,16 @@ Host.Spawn_f = function () {
     MSG.WriteString(message, SV.server.lightstyles[i]);
   }
   MSG.WriteByte(message, Protocol.svc.updatestat);
-  MSG.WriteByte(message, Def.stat.totalsecrets);
+  MSG.WriteByte(message, ClientDef.stat.totalsecrets);
   MSG.WriteLong(message, PR.globals_float[PR.globalvars.total_secrets]);
   MSG.WriteByte(message, Protocol.svc.updatestat);
-  MSG.WriteByte(message, Def.stat.totalmonsters);
+  MSG.WriteByte(message, ClientDef.stat.totalmonsters);
   MSG.WriteLong(message, PR.globals_float[PR.globalvars.total_monsters]);
   MSG.WriteByte(message, Protocol.svc.updatestat);
-  MSG.WriteByte(message, Def.stat.secrets);
+  MSG.WriteByte(message, ClientDef.stat.secrets);
   MSG.WriteLong(message, PR.globals_float[PR.globalvars.found_secrets]);
   MSG.WriteByte(message, Protocol.svc.updatestat);
-  MSG.WriteByte(message, Def.stat.monsters);
+  MSG.WriteByte(message, ClientDef.stat.monsters);
   MSG.WriteLong(message, PR.globals_float[PR.globalvars.killed_monsters]);
   MSG.WriteByte(message, Protocol.svc.setangle);
   MSG.WriteAngle(message, ent.v_float[PR.entvars.angles]);
@@ -1199,21 +1204,23 @@ Host.Give_f = function () {
   if (itemType >= 48 && itemType <= 57) {
     if (COM.hipnotic !== true) {
       if (itemType >= 50)
-        entity.v_float[PR.entvars.items] |= Def.it.shotgun << (itemType - 50);
+        entity.v_float[PR.entvars.items] |=
+          ClientDef.it.shotgun << (itemType - 50);
       return;
     }
     if (itemType === 54) {
       if (Cmd.argv[1].charCodeAt(1) === 97)
-        entity.v_float[PR.entvars.items] |= Def.hit.proximity_gun;
-      else entity.v_float[PR.entvars.items] |= Def.it.grenade_launcher;
+        entity.v_float[PR.entvars.items] |= ClientDef.hit.proximity_gun;
+      else entity.v_float[PR.entvars.items] |= ClientDef.it.grenade_launcher;
       return;
     }
     if (itemType === 57)
-      entity.v_float[PR.entvars.items] |= Def.hit.laser_cannon;
+      entity.v_float[PR.entvars.items] |= ClientDef.hit.laser_cannon;
     else if (itemType === 48)
-      entity.v_float[PR.entvars.items] |= Def.hit.mjolnir;
+      entity.v_float[PR.entvars.items] |= ClientDef.hit.mjolnir;
     else if (itemType >= 50)
-      entity.v_float[PR.entvars.items] |= Def.it.shotgun << (itemType - 50);
+      entity.v_float[PR.entvars.items] |=
+        ClientDef.it.shotgun << (itemType - 50);
     return;
   }
 
@@ -1248,42 +1255,42 @@ Host.Give_f = function () {
     case 110:
       if (PR.entvars.ammo_nails1 != null) {
         entity.v_float[PR.entvars.ammo_nails1] = itemAmount;
-        if (entity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+        if (entity.v_float[PR.entvars.weapon] <= ClientDef.it.lightning)
           entity.v_float[PR.entvars.ammo_nails] = itemAmount;
       }
       return;
     case 108:
       if (PR.entvars.ammo_lava_nails != null) {
         entity.v_float[PR.entvars.ammo_lava_nails] = itemAmount;
-        if (entity.v_float[PR.entvars.weapon] > Def.it.lightning)
+        if (entity.v_float[PR.entvars.weapon] > ClientDef.it.lightning)
           entity.v_float[PR.entvars.ammo_nails] = itemAmount;
       }
       return;
     case 114:
       if (PR.entvars.ammo_rockets1 != null) {
         entity.v_float[PR.entvars.ammo_rockets1] = itemAmount;
-        if (entity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+        if (entity.v_float[PR.entvars.weapon] <= ClientDef.it.lightning)
           entity.v_float[PR.entvars.ammo_rockets] = itemAmount;
       }
       return;
     case 109:
       if (PR.entvars.ammo_multi_rockets != null) {
         entity.v_float[PR.entvars.ammo_multi_rockets] = itemAmount;
-        if (entity.v_float[PR.entvars.weapon] > Def.it.lightning)
+        if (entity.v_float[PR.entvars.weapon] > ClientDef.it.lightning)
           entity.v_float[PR.entvars.ammo_rockets] = itemAmount;
       }
       return;
     case 99:
       if (PR.entvars.ammo_cells1 != null) {
         entity.v_float[PR.entvars.ammo_cells1] = itemAmount;
-        if (entity.v_float[PR.entvars.weapon] <= Def.it.lightning)
+        if (entity.v_float[PR.entvars.weapon] <= ClientDef.it.lightning)
           entity.v_float[PR.entvars.ammo_cells] = itemAmount;
       }
       return;
     case 112:
       if (PR.entvars.ammo_plasma != null) {
         entity.v_float[PR.entvars.ammo_plasma] = itemAmount;
-        if (entity.v_float[PR.entvars.weapon] > Def.it.lightning)
+        if (entity.v_float[PR.entvars.weapon] > ClientDef.it.lightning)
           entity.v_float[PR.entvars.ammo_cells] = itemAmount;
       }
       return;

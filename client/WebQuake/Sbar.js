@@ -146,10 +146,10 @@ Sbar.Init = function () {
       ];
     }
     Sbar.hipweapons = [
-      Def.hit.laser_cannon_bit,
-      Def.hit.mjolnir_bit,
+      ClientDef.hit.laser_cannon_bit,
+      ClientDef.hit.mjolnir_bit,
       4,
-      Def.hit.proximity_gun_bit,
+      ClientDef.hit.proximity_gun_bit,
     ];
     Sbar.h_items = [Draw.PicFromWad("SB_WSUIT"), Draw.PicFromWad("SB_ESHLD")];
   } else if (COM.rogue === true) {
@@ -246,15 +246,15 @@ Sbar.SoloScoreboard = function () {
   var str;
 
   Sbar.DrawString(8, 4, "Monsters:    /");
-  str = CL.state.stats[Def.stat.monsters].toString();
+  str = CL.state.stats[ClientDef.stat.monsters].toString();
   Sbar.DrawString(104 - (str.length << 3), 4, str);
-  str = CL.state.stats[Def.stat.totalmonsters].toString();
+  str = CL.state.stats[ClientDef.stat.totalmonsters].toString();
   Sbar.DrawString(144 - (str.length << 3), 4, str);
 
   Sbar.DrawString(8, 12, "Secrets :    /");
-  str = CL.state.stats[Def.stat.secrets].toString();
+  str = CL.state.stats[ClientDef.stat.secrets].toString();
   Sbar.DrawString(104 - (str.length << 3), 12, str);
-  str = CL.state.stats[Def.stat.totalsecrets].toString();
+  str = CL.state.stats[ClientDef.stat.totalsecrets].toString();
   Sbar.DrawString(144 - (str.length << 3), 12, str);
 
   var minutes = Math.floor(CL.state.time / 60.0);
@@ -283,18 +283,24 @@ Sbar.DrawInventory = function () {
       0,
       -24,
       Sbar.r_invbar[
-        CL.state.stats[Def.stat.activeweapon] >= Def.rit.lava_nailgun ? 0 : 1
+        CL.state.stats[ClientDef.stat.activeweapon] >=
+        ClientDef.rit.lava_nailgun
+          ? 0
+          : 1
       ]
     );
   else Sbar.DrawPic(0, -24, Sbar.ibar);
 
   var flashon;
   for (i = 0; i <= 6; ++i) {
-    if ((CL.state.items & (Def.it.shotgun << i)) === 0) continue;
+    if ((CL.state.items & (ClientDef.it.shotgun << i)) === 0) continue;
     flashon = Math.floor((CL.state.time - CL.state.item_gettime[i]) * 10.0);
     if (flashon >= 10)
       flashon =
-        CL.state.stats[Def.stat.activeweapon] === Def.it.shotgun << i ? 1 : 0;
+        CL.state.stats[ClientDef.stat.activeweapon] ===
+        ClientDef.it.shotgun << i
+          ? 1
+          : 0;
     else flashon = (flashon % 5) + 2;
     Sbar.DrawPic(i * 24, -16, Sbar.weapons[flashon][i]);
   }
@@ -305,18 +311,22 @@ Sbar.DrawInventory = function () {
         flashon = Math.floor((CL.state.time - CL.state.item_gettime[i]) * 10.0);
         if (flashon >= 10)
           flashon =
-            CL.state.stats[Def.stat.activeweapon] === 1 << Sbar.hipweapons[i]
+            CL.state.stats[ClientDef.stat.activeweapon] ===
+            1 << Sbar.hipweapons[i]
               ? 1
               : 0;
         else flashon = (flashon % 5) + 2;
 
         if (i === 2) {
-          if ((CL.state.items & Def.hit.proximity_gun) !== 0 && flashon !== 0) {
+          if (
+            (CL.state.items & ClientDef.hit.proximity_gun) !== 0 &&
+            flashon !== 0
+          ) {
             grenadeflashing = true;
             Sbar.DrawPic(96, -16, Sbar.h_weapons[flashon][2]);
           }
         } else if (i === 3) {
-          if ((CL.state.items & Def.it.grenade_launcher) !== 0) {
+          if ((CL.state.items & ClientDef.it.grenade_launcher) !== 0) {
             if (grenadeflashing !== true)
               Sbar.DrawPic(96, -16, Sbar.h_weapons[flashon][3]);
           } else Sbar.DrawPic(96, -16, Sbar.h_weapons[flashon][4]);
@@ -324,16 +334,21 @@ Sbar.DrawInventory = function () {
       }
     }
   } else if (COM.rogue === true) {
-    if (CL.state.stats[Def.stat.activeweapon] >= Def.rit.lava_nailgun) {
+    if (
+      CL.state.stats[ClientDef.stat.activeweapon] >= ClientDef.rit.lava_nailgun
+    ) {
       for (i = 0; i <= 4; ++i) {
-        if (CL.state.stats[Def.stat.activeweapon] === Def.rit.lava_nailgun << i)
+        if (
+          CL.state.stats[ClientDef.stat.activeweapon] ===
+          ClientDef.rit.lava_nailgun << i
+        )
           Sbar.DrawPic((i + 2) * 24, -16, Sbar.r_weapons[i]);
       }
     }
   }
 
   for (i = 0; i <= 3; ++i) {
-    var num = CL.state.stats[Def.stat.shells + i].toString();
+    var num = CL.state.stats[ClientDef.stat.shells + i].toString();
     switch (num.length) {
       case 1:
         Sbar.DrawCharacter(((6 * i + 3) << 3) - 2, -24, num.charCodeAt(0) - 30);
@@ -434,21 +449,22 @@ Sbar.DrawFace = function () {
   }
 
   if (
-    (CL.state.items & (Def.it.invisibility + Def.it.invulnerability)) ===
-    Def.it.invisibility + Def.it.invulnerability
+    (CL.state.items &
+      (ClientDef.it.invisibility + ClientDef.it.invulnerability)) ===
+    ClientDef.it.invisibility + ClientDef.it.invulnerability
   ) {
     Sbar.DrawPic(112, 0, Sbar.face_invis_invuln);
     return;
   }
-  if ((CL.state.items & Def.it.quad) !== 0) {
+  if ((CL.state.items & ClientDef.it.quad) !== 0) {
     Sbar.DrawPic(112, 0, Sbar.face_quad);
     return;
   }
-  if ((CL.state.items & Def.it.invisibility) !== 0) {
+  if ((CL.state.items & ClientDef.it.invisibility) !== 0) {
     Sbar.DrawPic(112, 0, Sbar.face_invis);
     return;
   }
-  if ((CL.state.items & Def.it.invulnerability) !== 0) {
+  if ((CL.state.items & ClientDef.it.invulnerability) !== 0) {
     Sbar.DrawPic(112, 0, Sbar.face_invuln);
     return;
   }
@@ -456,9 +472,9 @@ Sbar.DrawFace = function () {
     112,
     0,
     Sbar.faces[
-      CL.state.stats[Def.stat.health] >= 100.0
+      CL.state.stats[ClientDef.stat.health] >= 100.0
         ? 4
-        : Math.floor(CL.state.stats[Def.stat.health] / 20.0)
+        : Math.floor(CL.state.stats[ClientDef.stat.health] / 20.0)
     ][CL.state.time <= CL.state.faceanimtime ? 1 : 0]
   );
 };
@@ -474,7 +490,7 @@ Sbar.Draw = function () {
     if (CL.state.maxclients !== 1) Sbar.DrawFrags();
   }
 
-  if (Sbar.showscores === true || CL.state.stats[Def.stat.health] <= 0) {
+  if (Sbar.showscores === true || CL.state.stats[ClientDef.stat.health] <= 0) {
     Sbar.DrawPic(0, 0, Sbar.scorebar);
     Sbar.SoloScoreboard();
     if (CL.state.gametype === 1) Sbar.DeathmatchOverlay();
@@ -486,24 +502,24 @@ Sbar.Draw = function () {
   Sbar.DrawPic(0, 0, Sbar.sbar);
 
   if (COM.hipnotic === true) {
-    if ((CL.state.items & Def.it.key1) !== 0)
+    if ((CL.state.items & ClientDef.it.key1) !== 0)
       Sbar.DrawPic(209, 3, Sbar.items[0]);
-    if ((CL.state.items & Def.it.key2) !== 0)
+    if ((CL.state.items & ClientDef.it.key2) !== 0)
       Sbar.DrawPic(209, 12, Sbar.items[1]);
   }
 
-  var it = COM.rogue === true ? Def.rit : Def.it;
+  var it = COM.rogue === true ? ClientDef.rit : ClientDef.it;
 
-  if ((CL.state.items & Def.it.invulnerability) !== 0) {
+  if ((CL.state.items & ClientDef.it.invulnerability) !== 0) {
     Sbar.DrawNum(24, 0, 666, 3, 1);
     Sbar.DrawPic(0, 0, Sbar.disc);
   } else {
     Sbar.DrawNum(
       24,
       0,
-      CL.state.stats[Def.stat.armor],
+      CL.state.stats[ClientDef.stat.armor],
       3,
-      CL.state.stats[Def.stat.armor] <= 25 ? 1 : 0
+      CL.state.stats[ClientDef.stat.armor] <= 25 ? 1 : 0
     );
     if ((CL.state.items & it.armor3) !== 0) Sbar.DrawPic(0, 0, Sbar.armor[2]);
     else if ((CL.state.items & it.armor2) !== 0)
@@ -517,9 +533,9 @@ Sbar.Draw = function () {
   Sbar.DrawNum(
     136,
     0,
-    CL.state.stats[Def.stat.health],
+    CL.state.stats[ClientDef.stat.health],
     3,
-    CL.state.stats[Def.stat.health] <= 25 ? 1 : 0
+    CL.state.stats[ClientDef.stat.health] <= 25 ? 1 : 0
   );
 
   if ((CL.state.items & it.shells) !== 0) Sbar.DrawPic(224, 0, Sbar.ammo[0]);
@@ -530,19 +546,19 @@ Sbar.Draw = function () {
   else if ((CL.state.items & it.cells) !== 0)
     Sbar.DrawPic(224, 0, Sbar.ammo[3]);
   else if (COM.rogue === true) {
-    if ((CL.state.items & Def.rit.lava_nails) !== 0)
+    if ((CL.state.items & ClientDef.rit.lava_nails) !== 0)
       Sbar.DrawPic(224, 0, Sbar.r_ammo[0]);
-    else if ((CL.state.items & Def.rit.plasma_ammo) !== 0)
+    else if ((CL.state.items & ClientDef.rit.plasma_ammo) !== 0)
       Sbar.DrawPic(224, 0, Sbar.r_ammo[1]);
-    else if ((CL.state.items & Def.rit.multi_rockets) !== 0)
+    else if ((CL.state.items & ClientDef.rit.multi_rockets) !== 0)
       Sbar.DrawPic(224, 0, Sbar.r_ammo[2]);
   }
   Sbar.DrawNum(
     248,
     0,
-    CL.state.stats[Def.stat.ammo],
+    CL.state.stats[ClientDef.stat.ammo],
     3,
-    CL.state.stats[Def.stat.ammo] <= 10 ? 1 : 0
+    CL.state.stats[ClientDef.stat.ammo] <= 10 ? 1 : 0
   );
 
   if (VID.width >= 512 && CL.state.gametype === 1) Sbar.MiniDeathmatchOverlay();
@@ -641,13 +657,21 @@ Sbar.IntermissionOverlay = function () {
   Draw.Pic(246, 64, Sbar.nums[0][Math.floor(num / 10)]);
   Draw.Pic(266, 64, Sbar.nums[0][Math.floor(num % 10)]);
 
-  Sbar.IntermissionNumber(160, 104, CL.state.stats[Def.stat.secrets]);
+  Sbar.IntermissionNumber(160, 104, CL.state.stats[ClientDef.stat.secrets]);
   Draw.Pic(232, 104, Sbar.slash);
-  Sbar.IntermissionNumber(240, 104, CL.state.stats[Def.stat.totalsecrets]);
+  Sbar.IntermissionNumber(
+    240,
+    104,
+    CL.state.stats[ClientDef.stat.totalsecrets]
+  );
 
-  Sbar.IntermissionNumber(160, 144, CL.state.stats[Def.stat.monsters]);
+  Sbar.IntermissionNumber(160, 144, CL.state.stats[ClientDef.stat.monsters]);
   Draw.Pic(232, 144, Sbar.slash);
-  Sbar.IntermissionNumber(240, 144, CL.state.stats[Def.stat.totalmonsters]);
+  Sbar.IntermissionNumber(
+    240,
+    144,
+    CL.state.stats[ClientDef.stat.totalmonsters]
+  );
 };
 
 /**

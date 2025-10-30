@@ -25,7 +25,7 @@ WEBS.Connect = function (host) {
   sock.receiveMessage = [];
   sock.address = host;
   try {
-    sock.driverdata = new WebSocket(host, Def.socket_protocol_id);
+    sock.driverdata = new WebSocket(host, ClientDef.socket_protocol_id);
   } catch (e) {
     return;
   }

@@ -2,6 +2,8 @@ FROM nginx:mainline-alpine
 
 COPY client /usr/share/nginx/html
 
+COPY shared /usr/share/nginx/html/shared/
+
 COPY id1 /usr/share/nginx/html/id1/
 
 RUN rm -f /usr/share/nginx/html/index.html

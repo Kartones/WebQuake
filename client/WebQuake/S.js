@@ -437,7 +437,7 @@ S.SoundList = function () {
  * @returns {void}
  */
 S.LocalSound = function (sound) {
-  S.StartSound(CL.state.viewentity, -1, sound, Vec.origin, 1.0, 1.0);
+  S.StartSound(CL.state.viewentity, -1, sound, ClientVec.origin, 1.0, 1.0);
 };
 
 /**
