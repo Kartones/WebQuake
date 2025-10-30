@@ -27,6 +27,7 @@ const CDAudio = {
         xhr.open("HEAD", COM.searchpaths[j].filename + track, false);
         xhr.send();
         if (xhr.status >= 200 && xhr.status <= 299) {
+          // index is 0-based, while track numbers start at 1
           CDAudio.known[i - 1] = COM.searchpaths[j].filename + track;
           foundAnyTrack = true;
           break;
@@ -51,6 +52,7 @@ const CDAudio = {
     if (CDAudio.initialized !== true || CDAudio.enabled !== true) {
       return;
     }
+    // -2 because track index is 0-based and first track is the data track, so track numbering starts at 2
     const trackNumber = track - 2;
     if (CDAudio.playTrack === trackNumber) {
       if (CDAudio.cd != null) {
@@ -167,6 +169,7 @@ const CDAudio = {
         Con.Print(`${CDAudio.known.length} tracks\n`);
         if (CDAudio.cd != null) {
           if (CDAudio.cd.paused !== true) {
+            // +2 because track index is 0-based and first track is the data track, so track numbering starts at 2
             Con.Print(
               `Currently ${
                 CDAudio.cd.loop === true ? "looping" : "playing"
