@@ -17,8 +17,18 @@ The WebQuake client is a port of the original Quake engine to HTML5 and WebGL. I
 │                   Core Modules                           │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │
 │  │  Host    │ │   CL     │ │    R     │ │    S     │   │
-│  │(Engine)  │ │ (Client) │ │(Renderer)│ │ (Sound)  │   │
+│  │(Engine)  │ │(Client)  │ │(Renderer)│ │ (Sound)  │   │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │
+│                    │                                     │
+│         ┌──────────┼──────────┐                          │
+│         ▼          ▼          ▼                          │
+│    ┌────────┐ ┌────────┐ ┌────────────┐                │
+│    │CL_Core │ │CL_Input│ │CL_Net      │                │
+│    │CL_Demo │ │        │ │            │                │
+│    │CL_Parse│ │        │ │            │                │
+│    │CL_Efx  │ │        │ │            │                │
+│    │CL_Light│ │        │ │            │                │
+│    └────────┘ └────────┘ └────────────┘                │
 └─────────────────────────────────────────────────────────┘
           │         │              │          │
           ├─────────┼──────────────┼──────────┤
@@ -50,14 +60,84 @@ The WebQuake client is a port of the original Quake engine to HTML5 and WebGL. I
 - Dependencies: Most other modules
 - Responsibilities: Coordinates all subsystems
 
-**CL.js** - Client Logic (55KB)
+**CL.js** - Client Logic Orchestrator (528 bytes)
+- Main orchestrator for all client subsystems
+- Coordinates client input, networking, entity management, effects, and parsing
+- Dependencies: CL_Core, CL_Input, CL_Demo, CL_Parse, CL_Effects, CL_Light, CL_Net
+
+**CL_Core.js** - Entity & State Management (15KB)
 - Client connection state management
-- Server communication protocols
 - Entity management and interpolation
-- Input processing
-- Sound/visual effect queuing (color shifts, damage indicators)
-- Demo playback
-- Dependencies: Server communication, entity data, input
+- Server communication lifecycle
+- Demo playback initialization
+- Dependencies: Server communication, entity data
+
+**CL_Input.js** - Input Handling (7KB)
+- Keyboard and mouse input processing
+- Movement command generation
+- View angle adjustment
+- Key state tracking
+- Dependencies: Input system (IN.js, Key.js), movement handling
+
+**CL_Demo.js** - Demo Recording & Playback (5KB)
+- Demo recording functionality
+- Demo playback functionality
+- Time demo benchmarking
+- Dependencies: File I/O, network messaging
+
+**CL_Parse.js** - Server Message Parsing (15KB)
+- Server message interpretation
+- Entity state updates
+- Sound effect queuing
+- Visual effect processing
+- Static entity handling
+- Dependencies: Entity data, sound system, effects
+
+**CL_Effects.js** - Temporary Entities & Effects (6KB)
+- Temporary entity management (beams, explosions)
+- Visual effect processing
+- Particle effect generation
+- Dependencies: Rendering system, sound system
+
+**CL_Light.js** - Dynamic Lighting (1KB)
+- Dynamic light allocation
+- Light decay over time
+- Dependencies: Rendering system
+
+**CL_Net.js** - Network Communication (7KB)
+- Remote console (rcon) commands
+- Connection establishment and management
+- Disconnection handling
+- Message sending and receiving
+- Keepalive message generation
+- Dependencies: Network transport, messaging
+
+#### CL Module Organization
+
+The original monolithic `CL.js` (1,993 lines) was refactored into 8 focused modules following the Single Responsibility Principle:
+
+| Module | Size | Responsibility |
+|--------|------|-----------------|
+| CL.js | 528 B | Orchestrator namespace |
+| CL_Core.js | 15 KB | State initialization, entity lifecycle |
+| CL_Input.js | 7 KB | Input processing and movement |
+| CL_Demo.js | 5 KB | Demo recording/playback |
+| CL_Parse.js | 15 KB | Server message parsing |
+| CL_Effects.js | 6 KB | Temporary entities, visual effects |
+| CL_Light.js | 1 KB | Dynamic light management |
+| CL_Net.js | 7 KB | Network communication |
+
+**Load Order** (defined in index.htm):
+1. CL.js - Defines CL namespace
+2. CL_Core.js - Initializes core state
+3. CL_Input.js - Sets up input handling
+4. CL_Demo.js - Registers demo commands
+5. CL_Parse.js - Registers message parsers
+6. CL_Effects.js - Registers effect handlers
+7. CL_Light.js - Initializes lighting system
+8. CL_Net.js - Initializes networking
+
+All modules operate within the shared `CL` namespace, maintaining backward compatibility while improving code organization and maintainability.
 
 **R.js** - Renderer (73KB, largest module)
 - WebGL rendering pipeline
@@ -254,7 +334,9 @@ Host.Frame()
     │
     ├─► IN.ProcessInput()      ──► Cmd (command execution)
     │                              ↓
-    ├─► CL.Update()            ──► NET (server communication)
+    ├─► CL_Core.ReadFromServer() ──► CL_Parse (parse messages)
+    │                              ↓
+    ├─► CL_Input.SendMove()    ──► CL_Net (send commands)
     │                              ↓
     ├─► SV.RunFrame() (single-player) ──► Physics, AI, scripting
     │                                      ↓
@@ -267,9 +349,11 @@ Host.Frame()
 
 ### Network Communication
 ```
-Client Input
+Client Input (IN.js)
     ↓
-CL (Queues movement/actions)
+CL_Input (Queues movement/actions)
+    ↓
+CL_Net (Sends via network)
     ↓
 NET_WEBS (WebSocket)
     ↓
@@ -277,7 +361,9 @@ Server
     ↓
 NET_WEBS (Receives entity updates)
     ↓
-CL (Updates entity positions)
+CL_Parse (Parses server messages)
+    ↓
+CL_Effects/CL_Core (Updates state)
     ↓
 R (Renders updated entities)
 ```
@@ -317,7 +403,10 @@ R.RenderScene()
 ## Entry Point
 
 1. **index.htm** loads HTML5 canvas and WebGL context
-2. Scripts load in dependency order (see index.htm lines 100-137)
+2. Scripts load in dependency order (see index.htm lines 100-145):
+   - Core system modules (Host, CL orchestrator)
+   - CL sub-modules (Core, Input, Demo, Parse, Effects, Light, Net)
+   - Rendering, sound, and utility modules
 3. **Host.Initialize()** initializes all subsystems
 4. **Host.Main()** starts the main game loop via `requestAnimationFrame`
 
