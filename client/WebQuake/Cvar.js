@@ -8,6 +8,9 @@ Cvar = {};
 // array of all registered console variables
 Cvar.vars = [];
 
+// Extra logging that appears outside the game (e.g. in the browser console)
+Cvar.verbose_logging = false;
+
 /**
  * Find a cvar by name.
  * @param {string} name - The cvar name.

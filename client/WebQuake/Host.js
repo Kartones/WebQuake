@@ -369,7 +369,7 @@ Host.Init = function () {
   M.Init();
   CDAudio.Init();
   Sbar.Init();
-  CL.Init();
+  CL.Init(Cmd, Cvar);
   IN.Init();
   // Initial command
   Cmd.text = `exec quake.rc\n${Cmd.text}`;
