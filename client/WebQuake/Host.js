@@ -5,9 +5,13 @@
  */
 Host = {};
 
+// frame count counter
 Host.framecount = 0;
+// timing variable 3
 Host.time3 = 0.0;
+// total elapsed time
 Host.timetotal = 0.0;
+// frame time counter
 Host.timecount = 0;
 
 /**

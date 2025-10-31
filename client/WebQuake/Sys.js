@@ -6,6 +6,7 @@
 
 Sys = {};
 
+// list of DOM events to bind for input/window handling
 Sys.events = [
   "onbeforeunload",
   "oncontextmenu",

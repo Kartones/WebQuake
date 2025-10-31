@@ -6,9 +6,13 @@
 
 IN = {};
 
+// current mouse X position delta
 IN.mouse_x = 0.0;
+// current mouse Y position delta
 IN.mouse_y = 0.0;
+// previous mouse X position
 IN.old_mouse_x = 0.0;
+// previous mouse Y position
 IN.old_mouse_y = 0.0;
 
 /**

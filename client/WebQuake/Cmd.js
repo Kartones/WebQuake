@@ -6,14 +6,15 @@
  */
 
 var Cmd = {
-  // aliases
+  // alias commands mapping
   alias: [],
-  // contents
+  // command text buffer to be executed
   text: "",
-  // arguments
+  // argument array from current command
   argv: [],
-  // Commands added via AddCommand
+  // registered command functions
   functions: [],
+  // whether to wait before executing next command
   wait: false,
 
   /**

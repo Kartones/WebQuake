@@ -19,21 +19,29 @@ Loop.Connect = function (host) {
 
   if (Loop.client == null) {
     Loop.client = NET.NewQSocket();
+    // buffer for receiving messages on client
     Loop.client.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
     Loop.client.address = "localhost";
   }
+  // current length of received message
   Loop.client.receiveMessageLength = 0;
+  // whether client can send messages
   Loop.client.canSend = true;
 
   if (Loop.server == null) {
     Loop.server = NET.NewQSocket();
+    // buffer for receiving messages on server
     Loop.server.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
     Loop.server.address = "LOCAL";
   }
+  // current length of received message
   Loop.server.receiveMessageLength = 0;
+  // whether server can send messages
   Loop.server.canSend = true;
 
+  // linked connection for loopback
   Loop.client.driverdata = Loop.server;
+  // linked connection for loopback
   Loop.server.driverdata = Loop.client;
 
   return Loop.client;

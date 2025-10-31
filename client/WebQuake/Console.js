@@ -5,8 +5,11 @@
  */
 Con = {};
 
+// number of lines scrolled up from bottom of console
 Con.backscroll = 0;
+// current line index for circular buffer
 Con.current = 0;
+// array of console text objects with time stamps
 Con.text = [];
 
 /**
