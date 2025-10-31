@@ -9,6 +9,7 @@ Cvar = {};
 Cvar.vars = [];
 
 // Extra logging that appears outside the game (e.g. in the browser console)
+// Host.developer.value also exists, but that's once the game is already initialized
 Cvar.verbose_logging = false;
 
 /**

@@ -50,6 +50,16 @@ const CDAudio = {
     Con.Print("CD Audio Initialized\n");
   },
 
+  _PlayWithErrorHandling() {
+    CDAudio.cd.play().catch(() => {
+      if (Cvar.verbose_logging === true) {
+        Sys.Print(
+          "CDAudio.Play: Autoplay not allowed (user interaction required).\n"
+        );
+      }
+    });
+  },
+
   /**
    * Play a CD audio track.
    * @param {number} track - The track number to play.
@@ -65,7 +75,7 @@ const CDAudio = {
       if (CDAudio.cd != null) {
         CDAudio.cd.loop = looping;
         if (looping === true && CDAudio.cd.paused === true) {
-          CDAudio.cd.play();
+          CDAudio._PlayWithErrorHandling();
         }
       }
       return;
@@ -78,7 +88,17 @@ const CDAudio = {
       CDAudio.cd = new Audio(CDAudio.known[trackNumber]);
       CDAudio.cd.loop = looping;
       CDAudio.cd.volume = CDAudio.cdvolume;
-      CDAudio.cd.play();
+      CDAudio._PlayWithErrorHandling();
+    }
+    if (trackNumber < 0 || trackNumber >= CDAudio.known.length) {
+      Con.DPrint(`CDAudio.Play: Bad track number ${track}.\n`);
+    } else {
+      CDAudio.Stop();
+      CDAudio.playTrack = trackNumber;
+      CDAudio.cd = new Audio(CDAudio.known[trackNumber]);
+      CDAudio.cd.loop = looping;
+      CDAudio.cd.volume = CDAudio.cdvolume;
+      CDAudio._PlayWithErrorHandling();
     }
   },
 
@@ -116,7 +136,13 @@ const CDAudio = {
       return;
     }
     if (CDAudio.cd != null) {
-      CDAudio.cd.play();
+      CDAudio.cd.play().catch(() => {
+        if (Cvar.verbose_logging === true) {
+          Sys.Print(
+            "CDAudio.Play: Autoplay not allowed (user interaction required).\n"
+          );
+        }
+      });
     }
   },
 

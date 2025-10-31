@@ -8,9 +8,9 @@
  * Initialize the client module.
  */
 CL.Init = function (command_m, cvar_m) {
-  CL.ClearState();
-  CL.InitInput();
-  CL.InitTEnts();
+  CL._ClearState();
+  CL._InitInput();
+  CL._InitTEnts();
   CL.name = cvar_m.RegisterVariable("_cl_name", "player", true);
   CL.color = cvar_m.RegisterVariable("_cl_color", "0", true);
   CL.upspeed = cvar_m.RegisterVariable("cl_upspeed", "200");
@@ -32,7 +32,11 @@ CL.Init = function (command_m, cvar_m) {
   CL.m_side = cvar_m.RegisterVariable("m_side", "0.8", true);
   CL.rcon_password = cvar_m.RegisterVariable("rcon_password", "");
   CL.rcon_address = cvar_m.RegisterVariable("rcon_address", "");
-  command_m.AddCommand("entities", CL.PrintEntities_f);
-  command_m.AddCommand("rcon", CL.Rcon_f);
-  CL.InitDemo(command_m);
+  command_m.AddCommand("entities", CL._PrintEntities_f);
+  command_m.AddCommand("rcon", CL._Rcon_f);
+  command_m.AddCommand("disconnect", CL.Disconnect);
+  command_m.AddCommand("record", CL._Record_f);
+  command_m.AddCommand("stop", CL._Stop_f);
+  command_m.AddCommand("playdemo", CL._PlayDemo_f);
+  command_m.AddCommand("timedemo", CL._TimeDemo_f);
 };

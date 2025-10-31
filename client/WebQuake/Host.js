@@ -69,8 +69,8 @@ Host.FindMaxClients = function () {
 /**
  * Initalizes/Resets everything, including setting to singleplayer mode
  */
-Host.InitLocal = function () {
-  Host.InitCommands();
+Host._InitLocal = function () {
+  Host._InitCommands();
   Host.framerate = Cvar.RegisterVariable("host_framerate", "0");
   Host.speeds = Cvar.RegisterVariable("host_speeds", "0");
   Host.ticrate = Cvar.RegisterVariable("sys_ticrate", "0.05");
@@ -352,7 +352,7 @@ Host.Init = function () {
   V.Init();
   Chase.Init();
   COM.Init();
-  Host.InitLocal();
+  Host._InitLocal();
   W.LoadWadFile("gfx.wad");
   Key.Init();
   Con.Init();
@@ -1339,7 +1339,7 @@ Host.NOP = () => {};
 /**
  * InitCommands function.
  */
-Host.InitCommands = function () {
+Host._InitCommands = function () {
   Cmd.AddCommand("status", Host.Status_f);
   Cmd.AddCommand("quit", Host.Quit_f);
   Cmd.AddCommand("god", Host.God_f);

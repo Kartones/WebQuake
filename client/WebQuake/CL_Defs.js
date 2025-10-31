@@ -3,7 +3,7 @@
 /**
  * Client module - handles client state, input, server communication, and entity management.
  */
-CL = {};
+const CL = {};
 
 // Core state definitions
 CL.cshift = {

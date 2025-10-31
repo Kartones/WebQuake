@@ -5,7 +5,7 @@
 /**
  * Clear and initialize client state including entities, static state, and temp entities.
  */
-CL.ClearState = function () {
+CL._ClearState = function () {
   if (SV.server.active !== true) {
     Con.DPrint("Clearing memory\n");
     Mod.ClearAll();
@@ -122,7 +122,7 @@ CL.ClearState = function () {
 /**
  * LerpPoint function.
  */
-CL.LerpPoint = function () {
+CL._LerpPoint = function () {
   let f = CL.state.mtime[0] - CL.state.mtime[1];
   if (
     f === 0.0 ||
@@ -152,9 +152,9 @@ CL.LerpPoint = function () {
 /**
  * Update entity positions based on interpolation.
  */
-CL.RelinkEntities = function () {
+CL._RelinkEntities = function () {
   let i, j;
-  let frac = CL.LerpPoint(),
+  let frac = CL._LerpPoint(),
     f,
     d,
     delta = [];
@@ -271,16 +271,16 @@ CL.ReadFromServer = function () {
   CL.state.oldtime = CL.state.time;
   CL.state.time += Host.frametime;
   for (let ret; ; ) {
-    ret = CL.GetMessage();
+    ret = CL._GetMessage();
     if (ret === -1) Host.Error("CL.ReadFromServer: lost server connection");
     if (ret === 0) break;
     CL.state.last_received_message = Host.realtime;
-    CL.ParseServerMessage();
+    CL._ParseServerMessage();
     if (CL.cls.state !== CL.active.connected) break;
   }
   if (CL.shownet.value !== 0) Con.Print("\n");
-  CL.RelinkEntities();
-  CL.UpdateTEnts();
+  CL._RelinkEntities();
+  CL._UpdateTEnts();
 };
 
 /**
@@ -288,7 +288,7 @@ CL.ReadFromServer = function () {
  * @param {number} num - The entity number.
  * @returns {object} The entity object.
  */
-CL.EntityNum = function (num) {
+CL._EntityNum = function (num) {
   if (num < CL.entities.length) return CL.entities[num];
   for (; CL.entities.length <= num; ) {
     CL.entities[CL.entities.length] = {
@@ -368,7 +368,7 @@ CL.NextDemo = function () {
 /**
  * Print information about entities for debugging.
  */
-CL.PrintEntities_f = function () {
+CL._PrintEntities_f = function () {
   let i, ent;
   for (i = 0; i < CL.entities.length; ++i) {
     ent = CL.entities[i];
@@ -403,7 +403,7 @@ CL.PrintEntities_f = function () {
 /**
  * InitTEnts function. Precaches some sounds (used by temporary entities?).
  */
-CL.InitTEnts = function () {
+CL._InitTEnts = function () {
   CL.sfx_wizhit = S.PrecacheSound("wizard/hit.wav");
   CL.sfx_knighthit = S.PrecacheSound("hknight/hit.wav");
   CL.sfx_tink1 = S.PrecacheSound("weapons/tink1.wav");
@@ -417,7 +417,7 @@ CL.InitTEnts = function () {
  * Parse beam temporary entity.
  * @param {object} m - Message object.
  */
-CL.ParseBeam = function (m) {
+CL._ParseBeam = function (m) {
   let ent = MSG.ReadShort();
   let start = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
   let end = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
@@ -447,21 +447,21 @@ CL.ParseBeam = function (m) {
 /**
  * Parse temporary entity from server.
  */
-CL.ParseTEnt = function () {
+CL._ParseTEnt = function () {
   let type = MSG.ReadByte();
 
   switch (type) {
     case Protocol.te.lightning1:
-      CL.ParseBeam(Mod.ForName("progs/bolt.mdl", true));
+      CL._ParseBeam(Mod.ForName("progs/bolt.mdl", true));
       return;
     case Protocol.te.lightning2:
-      CL.ParseBeam(Mod.ForName("progs/bolt2.mdl", true));
+      CL._ParseBeam(Mod.ForName("progs/bolt2.mdl", true));
       return;
     case Protocol.te.lightning3:
-      CL.ParseBeam(Mod.ForName("progs/bolt3.mdl", true));
+      CL._ParseBeam(Mod.ForName("progs/bolt3.mdl", true));
       return;
     case Protocol.te.beam:
-      CL.ParseBeam(Mod.ForName("progs/beam.mdl", true));
+      CL._ParseBeam(Mod.ForName("progs/beam.mdl", true));
       return;
   }
 
@@ -524,7 +524,7 @@ CL.ParseTEnt = function () {
  * Create a new temporary entity.
  * @returns {object} The new temporary entity.
  */
-CL.NewTempEntity = function () {
+CL._NewTempEntity = function () {
   let ent = { frame: 0, syncbase: 0.0, skinnum: 0 };
   CL.temp_entities[CL.num_temp_entities++] = ent;
   CL.visedicts[CL.numvisedicts++] = ent;
@@ -534,7 +534,7 @@ CL.NewTempEntity = function () {
 /**
  * Update temporary entities.
  */
-CL.UpdateTEnts = function () {
+CL._UpdateTEnts = function () {
   CL.num_temp_entities = 0;
   let i,
     b,
@@ -578,7 +578,7 @@ CL.UpdateTEnts = function () {
       dist[2] /= d;
     }
     for (; d > 0.0; ) {
-      ent = CL.NewTempEntity();
+      ent = CL._NewTempEntity();
       ent.origin = [org[0], org[1], org[2]];
       ent.model = b.model;
       ent.angles = [pitch, yaw, Math.random() * 360.0];
@@ -716,7 +716,7 @@ CL._AdjustAngles = function () {
 /**
  * Calculate base movement velocity from input.
  */
-CL.BaseMove = function () {
+CL._BaseMove = function () {
   if (CL.cls.signon !== 4) return;
 
   CL._AdjustAngles();
@@ -751,7 +751,7 @@ CL.BaseMove = function () {
 /**
  * Sends a movement command through the network
  */
-CL.SendMove = function () {
+CL._SendMove = function () {
   let messageBuffer = CL._sendmovebuf;
   messageBuffer.cursize = 0;
 
@@ -791,7 +791,7 @@ CL.SendMove = function () {
 /**
  * Initialize client input subsystem.
  */
-CL.InitInput = function () {
+CL._InitInput = function () {
   let i;
 
   const commands = [
@@ -843,7 +843,7 @@ CL.StopPlayback = function () {
 /**
  * Write the current network message to the demo file with view angles.
  */
-CL.WriteDemoMessage = function () {
+CL._WriteDemoMessage = function () {
   let len = CL.cls.demoofs + 16 + NET.message.cursize;
   if (CL.cls.demofile.byteLength < len) {
     let src = new Uint8Array(CL.cls.demofile, 0, CL.cls.demoofs);
@@ -865,7 +865,7 @@ CL.WriteDemoMessage = function () {
 /**
  * Stop demo recording.
  */
-CL.Stop_f = function () {
+CL._Stop_f = function () {
   if (Cmd.client === true) return;
   if (CL.cls.demorecording !== true) {
     Con.Print("Not recording a demo.\n");
@@ -873,7 +873,7 @@ CL.Stop_f = function () {
   }
   NET.message.cursize = 0;
   MSG.WriteByte(NET.message, Protocol.svc.disconnect);
-  CL.WriteDemoMessage();
+  CL._WriteDemoMessage();
   if (
     COM.WriteFile(
       CL.cls.demoname,
@@ -991,19 +991,11 @@ CL._TimeDemo_f = function () {
   CL.cls.td_lastframe = -1;
 };
 
-CL.InitDemo = function (command_m) {
-  command_m.AddCommand("disconnect", CL.Disconnect);
-  command_m.AddCommand("record", CL._Record_f);
-  command_m.AddCommand("stop", CL.Stop_f);
-  command_m.AddCommand("playdemo", CL._PlayDemo_f);
-  command_m.AddCommand("timedemo", CL._TimeDemo_f);
-};
-
 /**
  * Read and parse a message from the server or demo file.
  * @returns {number} The number of bytes read, or 0 if no message available.
  */
-CL.GetMessage = function () {
+CL._GetMessage = function () {
   if (CL.cls.demoplayback === true) {
     if (CL.cls.signon === 4) {
       if (CL.cls.timedemo === true) {
@@ -1055,7 +1047,7 @@ CL.GetMessage = function () {
     else break;
   }
 
-  if (CL.cls.demorecording === true) CL.WriteDemoMessage();
+  if (CL.cls.demorecording === true) CL._WriteDemoMessage();
 
   return r;
 };
@@ -1063,7 +1055,7 @@ CL.GetMessage = function () {
 /**
  * Execute remote console command.
  */
-CL.Rcon_f = function () {
+CL._Rcon_f = function () {
   if (CL.rcon_password.string.length === 0) {
     Con.Print(
       "You must set 'rcon_password' before\nissuing an rcon command.\n"
@@ -1111,7 +1103,7 @@ CL.Disconnect = function () {
   S.StopAllSounds();
   if (CL.cls.demoplayback === true) CL.StopPlayback();
   else if (CL.cls.state === CL.active.connected) {
-    if (CL.cls.demorecording === true) CL.Stop_f();
+    if (CL.cls.demorecording === true) CL._Stop_f();
     Con.DPrint("Sending clc_disconnect\n");
     CL.cls.message.cursize = 0;
     MSG.WriteByte(CL.cls.message, Protocol.clc.disconnect);
@@ -1153,7 +1145,7 @@ CL.EstablishConnection = function (host) {
 /**
  * Handle server signon reply during connection handshake.
  */
-CL.SignonReply = function () {
+CL._SignonReply = function () {
   Con.DPrint("CL.SignonReply: " + CL.cls.signon + "\n");
   switch (CL.cls.signon) {
     case 1:
@@ -1183,14 +1175,14 @@ CL.SignonReply = function () {
 /**
  * Send keepalive message to prevent timeout.
  */
-CL.KeepaliveMessage = function () {
+CL._KeepaliveMessage = function () {
   if (SV.server.active === true || CL.cls.demoplayback === true) return;
   let oldsize = NET.message.cursize;
   let olddata = new Uint8Array(8192);
   olddata.set(new Uint8Array(NET.message.data, 0, oldsize));
   let ret;
   for (;;) {
-    ret = CL.GetMessage();
+    ret = CL._GetMessage();
     switch (ret) {
       case 0:
         break;
@@ -1224,9 +1216,9 @@ CL.SendCmd = function () {
   if (CL.cls.state !== CL.active.connected) return;
 
   if (CL.cls.signon === 4) {
-    CL.BaseMove();
+    CL._BaseMove();
     IN.Move();
-    CL.SendMove();
+    CL._SendMove();
   }
 
   if (CL.cls.demoplayback === true) {
@@ -1250,7 +1242,7 @@ CL.SendCmd = function () {
 /**
  * Parse a sound packet from server and play it.
  */
-CL.ParseStartSoundPacket = function () {
+CL._ParseStartSoundPacket = function () {
   let field_mask = MSG.ReadByte();
   let volume = (field_mask & 1) !== 0 ? MSG.ReadByte() : 255;
   let attenuation = (field_mask & 2) !== 0 ? MSG.ReadByte() * 0.015625 : 1.0;
@@ -1272,9 +1264,9 @@ CL.ParseStartSoundPacket = function () {
 /**
  * Parse server information packet.
  */
-CL.ParseServerInfo = function () {
+CL._ParseServerInfo = function () {
   Con.DPrint("Serverinfo packet received.\n");
-  CL.ClearState();
+  CL._ClearState();
   let i = MSG.ReadLong();
   if (i !== Protocol.version) {
     Con.Print(
@@ -1330,16 +1322,16 @@ CL.ParseServerInfo = function () {
       Con.Print("Model " + model_precache[i] + " not found\n");
       return;
     }
-    CL.KeepaliveMessage();
+    CL._KeepaliveMessage();
   }
   CL.state.sound_precache = [];
   for (i = 1; i < numsounds; ++i) {
     CL.state.sound_precache[i] = S.PrecacheSound(sound_precache[i]);
-    CL.KeepaliveMessage();
+    CL._KeepaliveMessage();
   }
 
   CL.state.worldmodel = CL.state.model_precache[1];
-  CL.EntityNum(0).model = CL.state.worldmodel;
+  CL._EntityNum(0).model = CL.state.worldmodel;
   R.NewMap();
   Host.noclip_anglehack = false;
 };
@@ -1348,15 +1340,15 @@ CL.ParseServerInfo = function () {
  * Parse entity update from server.
  * @param {number} bits - Bitfield indicating which fields are present.
  */
-CL.ParseUpdate = function (bits) {
+CL._ParseUpdate = function (bits) {
   if (CL.cls.signon === 3) {
     CL.cls.signon = 4;
-    CL.SignonReply();
+    CL._SignonReply();
   }
 
   if ((bits & Protocol.u.morebits) !== 0) bits += MSG.ReadByte() << 8;
 
-  let ent = CL.EntityNum(
+  let ent = CL._EntityNum(
     (bits & Protocol.u.longentity) !== 0 ? MSG.ReadShort() : MSG.ReadByte()
   );
 
@@ -1420,7 +1412,7 @@ CL.ParseUpdate = function (bits) {
  * Parse entity baseline from server.
  * @param {object} ent - Entity to receive baseline data.
  */
-CL.ParseBaseline = function (ent) {
+CL._ParseBaseline = function (ent) {
   ent.baseline.modelindex = MSG.ReadByte();
   ent.baseline.frame = MSG.ReadByte();
   ent.baseline.colormap = MSG.ReadByte();
@@ -1437,7 +1429,7 @@ CL.ParseBaseline = function (ent) {
  * Parse client data from server.
  * @param {number} bits - Bitfield indicating which fields are present.
  */
-CL.ParseClientdata = function (bits) {
+CL._ParseClientdata = function (bits) {
   let i;
 
   CL.state.viewheight =
@@ -1494,7 +1486,7 @@ CL.ParseClientdata = function (bits) {
 /**
  * Parse static entity from server.
  */
-CL.ParseStatic = function () {
+CL._ParseStatic = function () {
   let ent = {
     // entity number (-1 for static entities)
     num: -1,
@@ -1526,7 +1518,7 @@ CL.ParseStatic = function () {
     leafs: [],
   };
   CL.static_entities[CL.state.num_statics++] = ent;
-  CL.ParseBaseline(ent);
+  CL._ParseBaseline(ent);
   ent.model = CL.state.model_precache[ent.baseline.modelindex];
   ent.frame = ent.baseline.frame;
   ent.skinnum = ent.baseline.skin;
@@ -1558,7 +1550,7 @@ CL.ParseStatic = function () {
 /**
  * Parse static sound from server.
  */
-CL.ParseStaticSound = function () {
+CL._ParseStaticSound = function () {
   let org = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
   let sound_num = MSG.ReadByte();
   let vol = MSG.ReadByte();
@@ -1570,7 +1562,7 @@ CL.ParseStaticSound = function () {
  * Print network message debug info.
  * @param {number} x - Verbosity level.
  */
-CL.Shownet = function (x) {
+CL._Shownet = function (x) {
   if (CL.shownet.value === 2) {
     Con.Print(
       (MSG.readcount <= 99 ? (MSG.readcount <= 9 ? "  " : " ") : "") +
@@ -1585,7 +1577,7 @@ CL.Shownet = function (x) {
 /**
  * Parse messages received from server.
  */
-CL.ParseServerMessage = function () {
+CL._ParseServerMessage = function () {
   if (CL.shownet.value === 1) Con.Print(NET.message.cursize + " ");
   else if (CL.shownet.value === 2) Con.Print("------------------\n");
 
@@ -1601,17 +1593,17 @@ CL.ParseServerMessage = function () {
     cmd = MSG.ReadByte();
 
     if (cmd === -1) {
-      CL.Shownet("END OF MESSAGE");
+      CL._Shownet("END OF MESSAGE");
       return;
     }
 
     if ((cmd & 128) !== 0) {
-      CL.Shownet("fast update");
-      CL.ParseUpdate(cmd & 127);
+      CL._Shownet("fast update");
+      CL._ParseUpdate(cmd & 127);
       continue;
     }
 
-    CL.Shownet("svc_" + CL.svc_strings[cmd]);
+    CL._Shownet("svc_" + CL.svc_strings[cmd]);
     switch (cmd) {
       case Protocol.svc.nop:
         continue;
@@ -1620,7 +1612,7 @@ CL.ParseServerMessage = function () {
         CL.state.mtime[0] = MSG.ReadFloat();
         continue;
       case Protocol.svc.clientdata:
-        CL.ParseClientdata(MSG.ReadShort());
+        CL._ParseClientdata(MSG.ReadShort());
         continue;
       case Protocol.svc.version:
         i = MSG.ReadLong();
@@ -1648,7 +1640,7 @@ CL.ParseServerMessage = function () {
         V.ParseDamage();
         continue;
       case Protocol.svc.serverinfo:
-        CL.ParseServerInfo();
+        CL._ParseServerInfo();
         SCR.recalc_refdef = true;
         continue;
       case Protocol.svc.setangle:
@@ -1665,7 +1657,7 @@ CL.ParseServerMessage = function () {
         CL.lightstyle[i] = MSG.ReadString();
         continue;
       case Protocol.svc.sound:
-        CL.ParseStartSoundPacket();
+        CL._ParseStartSoundPacket();
         continue;
       case Protocol.svc.stopsound:
         i = MSG.ReadShort();
@@ -1695,13 +1687,13 @@ CL.ParseServerMessage = function () {
         R.ParseParticleEffect();
         continue;
       case Protocol.svc.spawnbaseline:
-        CL.ParseBaseline(CL.EntityNum(MSG.ReadShort()));
+        CL._ParseBaseline(CL._EntityNum(MSG.ReadShort()));
         continue;
       case Protocol.svc.spawnstatic:
-        CL.ParseStatic();
+        CL._ParseStatic();
         continue;
       case Protocol.svc.temp_entity:
-        CL.ParseTEnt();
+        CL._ParseTEnt();
         continue;
       case Protocol.svc.setpause:
         CL.state.paused = MSG.ReadByte() !== 0;
@@ -1713,7 +1705,7 @@ CL.ParseServerMessage = function () {
         if (i <= CL.cls.signon)
           Host.Error("Received signon " + i + " when at " + CL.cls.signon);
         CL.cls.signon = i;
-        CL.SignonReply();
+        CL._SignonReply();
         continue;
       case Protocol.svc.killedmonster:
         ++CL.state.stats[ClientDef.stat.monsters];
@@ -1727,7 +1719,7 @@ CL.ParseServerMessage = function () {
         CL.state.stats[i] = MSG.ReadLong();
         continue;
       case Protocol.svc.spawnstaticsound:
-        CL.ParseStaticSound();
+        CL._ParseStaticSound();
         continue;
       case Protocol.svc.cdtrack:
         CL.state.cdtrack = MSG.ReadByte();
