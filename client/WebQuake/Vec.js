@@ -5,6 +5,7 @@
  */
 
 // Refactored from the original source code, so that shared definitions can be used
+// client-side vector operations module
 let ClientVec = {};
 
 // Running in a browser environment

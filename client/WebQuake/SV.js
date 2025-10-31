@@ -6,46 +6,78 @@
 SV = {};
 
 SV.movetype = {
+  // no movement
   none: 0,
+  // free movement, angles unrestricted
   anglenoclip: 1,
+  // free movement with angle clipping
   angleclip: 2,
+  // walking on ground
   walk: 3,
+  // gravity affected
   step: 4,
+  // flying movement
   fly: 5,
+  // projectile with gravity
   toss: 6,
+  // pushing other entities
   push: 7,
+  // no clipping through walls
   noclip: 8,
+  // missile flight path
   flymissile: 9,
+  // bouncing projectile
   bounce: 10,
 };
 
 SV.solid = {
+  // not solid, no collision
   not: 0,
+  // only triggers can interact
   trigger: 1,
+  // bounding box collision
   bbox: 2,
+  // sliding bounding box
   slidebox: 3,
+  // BSP tree based collision
   bsp: 4,
 };
 
 SV.damage = {
+  // no damage
   no: 0,
+  // normal damage
   yes: 1,
+  // aim-based damage
   aim: 2,
 };
 
 SV.fl = {
+  // flying flag
   fly: 1,
+  // swimming flag
   swim: 2,
+  // conveyor belt flag
   conveyor: 4,
+  // client player flag
   client: 8,
+  // in water/liquid flag
   inwater: 16,
+  // monster flag
   monster: 32,
+  // godmode flag
   godmode: 64,
+  // no targeting flag
   notarget: 128,
+  // item flag
   item: 256,
+  // on ground flag
   onground: 512,
+  // partially on ground flag
   partialground: 1024,
+  // water jump flag
   waterjump: 2048,
+  // jump released flag
   jumpreleased: 4096,
 };
 

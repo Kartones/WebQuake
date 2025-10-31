@@ -7,17 +7,28 @@
 M = {};
 
 M.state = {
+  // no menu displayed
   none: 0,
+  // main menu screen
   main: 1,
+  // single player menu
   singleplayer: 2,
+  // load game menu
   load: 3,
+  // save game menu
   save: 4,
+  // multiplayer menu
   multiplayer: 5,
+  // game options menu
   options: 6,
+  // key binding menu
   keys: 7,
+  // help screen
   help: 8,
+  // quit confirmation
   quit: 9,
 
+  // currently active menu state
   value: 0,
 };
 

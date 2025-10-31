@@ -8,6 +8,7 @@ WEBS = {};
 WEBS.Init = function () {
   if (window.WebSocket == null || document.location.protocol === "https:")
     return;
+  // WebSocket driver available
   WEBS.available = true;
   return true;
 };
@@ -22,16 +23,22 @@ WEBS.Connect = function (host) {
   host = "ws://" + host.split("/")[2];
   var sock = NET.NewQSocket();
   sock.disconnected = true;
+  // queue of received messages
   sock.receiveMessage = [];
   sock.address = host;
   try {
+    // WebSocket connection object
     sock.driverdata = new WebSocket(host, ClientDef.socket_protocol_id);
   } catch (e) {
     return;
   }
+  // back-reference to socket from WebSocket
   sock.driverdata.data_socket = sock;
+  // binary data type for WebSocket
   sock.driverdata.binaryType = "arraybuffer";
+  // error callback
   sock.driverdata.onerror = WEBS.OnError;
+  // message callback
   sock.driverdata.onmessage = WEBS.OnMessage;
   NET.newsocket = sock;
   return 0;

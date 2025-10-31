@@ -5,6 +5,7 @@
  */
 W = {};
 
+// array of loaded WAD lumps indexed by name
 W.lumps = [];
 
 /**

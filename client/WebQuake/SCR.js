@@ -7,9 +7,12 @@
 
 SCR = {};
 
+// current console scroll position
 SCR.con_current = 0;
 
+// lines of centered text being displayed
 SCR.centerstring = [];
+// duration to display centered text
 SCR.centertime_off = 0.0;
 
 /**

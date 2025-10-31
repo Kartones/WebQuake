@@ -6,82 +6,156 @@
 PR = {};
 
 PR.etype = {
+  // undefined type
   ev_void: 0,
+  // string literal
   ev_string: 1,
+  // floating point number
   ev_float: 2,
+  // 3d vector
   ev_vector: 3,
+  // entity reference
   ev_entity: 4,
+  // entity field reference
   ev_field: 5,
+  // function reference
   ev_function: 6,
+  // pointer type
   ev_pointer: 7,
 };
 
 PR.op = {
+  // end of statements
   done: 0,
+  // float multiply
   mul_f: 1,
+  // vector multiply
   mul_v: 2,
+  // float-vector multiply
   mul_fv: 3,
+  // vector-float multiply
   mul_vf: 4,
+  // float divide
   div_f: 5,
+  // float add
   add_f: 6,
+  // vector add
   add_v: 7,
+  // float subtract
   sub_f: 8,
+  // vector subtract
   sub_v: 9,
+  // float equality
   eq_f: 10,
+  // vector equality
   eq_v: 11,
+  // string equality
   eq_s: 12,
+  // entity equality
   eq_e: 13,
+  // function equality
   eq_fnc: 14,
+  // float not-equal
   ne_f: 15,
+  // vector not-equal
   ne_v: 16,
+  // string not-equal
   ne_s: 17,
+  // entity not-equal
   ne_e: 18,
+  // function not-equal
   ne_fnc: 19,
+  // less-than-or-equal
   le: 20,
+  // greater-than-or-equal
   ge: 21,
+  // less-than
   lt: 22,
+  // greater-than
   gt: 23,
+  // load float from field
   load_f: 24,
+  // load vector from field
   load_v: 25,
+  // load string from field
   load_s: 26,
+  // load entity from field
   load_ent: 27,
+  // load field from field
   load_fld: 28,
+  // load function from field
   load_fnc: 29,
+  // get address of field
   address: 30,
+  // store float to field
   store_f: 31,
+  // store vector to field
   store_v: 32,
+  // store string to field
   store_s: 33,
+  // store entity to field
   store_ent: 34,
+  // store field to field
   store_fld: 35,
+  // store function to field
   store_fnc: 36,
+  // store pointer to field
   storep_f: 37,
+  // store pointer vector
   storep_v: 38,
+  // store pointer string
   storep_s: 39,
+  // store pointer entity
   storep_ent: 40,
+  // store pointer field
   storep_fld: 41,
+  // store pointer function
   storep_fnc: 42,
+  // return from function
   ret: 43,
+  // float logical not
   not_f: 44,
+  // vector logical not
   not_v: 45,
+  // string logical not
   not_s: 46,
+  // entity logical not
   not_ent: 47,
+  // function logical not
   not_fnc: 48,
+  // jump if not zero
   jnz: 49,
+  // jump if zero
   jz: 50,
+  // call function (0 args)
   call0: 51,
+  // call function (1 arg)
   call1: 52,
+  // call function (2 args)
   call2: 53,
+  // call function (3 args)
   call3: 54,
+  // call function (4 args)
   call4: 55,
+  // call function (5 args)
   call5: 56,
+  // call function (6 args)
   call6: 57,
+  // call function (7 args)
   call7: 58,
+  // call function (8 args)
   call8: 59,
+  // change entity state
   state: 60,
+  // unconditional jump
   jump: 61,
+  // bitwise and
   and: 62,
+  // bitwise or
   or: 63,
+  // bitwise and
   bitand: 64,
+  // bitwise or
   bitor: 65,
 };
 

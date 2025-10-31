@@ -6,8 +6,10 @@
 
 COM = {};
 
+// command line arguments
 COM.argv = [];
 
+// whether to use standard Quake (vs custom variant)
 COM.standard_quake = true;
 
 /**
@@ -191,6 +193,7 @@ COM.Init = function () {
   COM.CheckRegistered();
 };
 
+// list of file system search paths for locating resources
 COM.searchpaths = [];
 
 /**
@@ -279,7 +282,9 @@ COM.LoadFile = function (filename) {
     netpath = search.filename + "/" + filename;
     data = localStorage.getItem("Quake." + netpath);
     if (data != null) {
-      Sys.Print("FindFile: " + netpath + "\n");
+      if (Cvar.verbose_logging === true) {
+        Sys.Print("FindFile: " + netpath + "\n");
+      }
       Draw.EndDisc();
       return Q.strmem(data);
     }
@@ -303,15 +308,17 @@ COM.LoadFile = function (filename) {
           xhr.status <= 299 &&
           xhr.responseText.length === file.filelen
         ) {
-          Sys.Print(
-            "PackFile: " +
-              search.filename +
-              "/pak" +
-              j +
-              ".pak : " +
-              filename +
-              "\n"
-          );
+          if (Cvar.verbose_logging === true) {
+            Sys.Print(
+              "PackFile: " +
+                search.filename +
+                "/pak" +
+                j +
+                ".pak : " +
+                filename +
+                "\n"
+            );
+          }
           Draw.EndDisc();
           return Q.strmem(xhr.responseText);
         }
@@ -321,7 +328,9 @@ COM.LoadFile = function (filename) {
     xhr.open("GET", netpath, false);
     xhr.send();
     if (xhr.status >= 200 && xhr.status <= 299) {
-      Sys.Print("FindFile: " + netpath + "\n");
+      if (Cvar.verbose_logging === true) {
+        Sys.Print("FindFile: " + netpath + "\n");
+      }
       Draw.EndDisc();
       return Q.strmem(xhr.responseText);
     }

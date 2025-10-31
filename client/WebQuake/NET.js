@@ -5,8 +5,11 @@
  */
 NET = {};
 
+// array of active network sockets
 NET.activeSockets = [];
+// message buffer for network communication
 NET.message = { data: new ArrayBuffer(8192), cursize: 0 };
+// number of active connections
 NET.activeconnections = 0;
 
 /**
@@ -18,9 +21,13 @@ NET.NewQSocket = function () {
     if (NET.activeSockets[i].disconnected === true) break;
   }
   NET.activeSockets[i] = {
+    // timestamp when socket was created
     connecttime: NET.time,
+    // timestamp of last message received
     lastMessageTime: NET.time,
+    // network driver index
     driver: NET.driverlevel,
+    // socket address/identifier
     address: "UNSET ADDRESS",
   };
   return NET.activeSockets[i];

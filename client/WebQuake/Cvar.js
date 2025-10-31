@@ -5,7 +5,12 @@
  */
 Cvar = {};
 
+// array of all registered console variables
 Cvar.vars = [];
+
+// Extra logging that appears outside the game (e.g. in the browser console)
+// Host.developer.value also exists, but that's once the game is already initialized
+Cvar.verbose_logging = false;
 
 /**
  * Find a cvar by name.
@@ -79,10 +84,15 @@ Cvar.RegisterVariable = function (name, value, archive, server) {
     }
   }
   Cvar.vars[Cvar.vars.length] = {
+    // name of the console variable
     name: name,
+    // string value of the variable
     string: value,
+    // whether to save in config file
     archive: archive,
+    // whether this is a server-side variable
     server: server,
+    // numeric value converted from string
     value: Q.atof(value),
   };
   return Cvar.vars[Cvar.vars.length - 1];

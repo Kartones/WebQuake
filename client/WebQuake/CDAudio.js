@@ -4,11 +4,17 @@
  * Music logic. Legacy name, as WebQuake uses ogg music files if present
  */
 const CDAudio = {
+  // whether the CD audio system has been initialized
   initialized: false,
+  // array of known music track file paths indexed by track number
   known: [],
+  // currently playing audio element
   cd: undefined,
+  // currently playing track number or null if none
   playTrack: null,
+  // whether CD audio playback is enabled
   enabled: false,
+  // current volume level for CD audio (0.0 to 1.0)
   cdvolume: 0.0,
 
   /**
@@ -44,6 +50,16 @@ const CDAudio = {
     Con.Print("CD Audio Initialized\n");
   },
 
+  _PlayWithErrorHandling() {
+    CDAudio.cd.play().catch(() => {
+      if (Cvar.verbose_logging === true) {
+        Sys.Print(
+          "CDAudio.Play: Autoplay not allowed (user interaction required).\n"
+        );
+      }
+    });
+  },
+
   /**
    * Play a CD audio track.
    * @param {number} track - The track number to play.
@@ -59,7 +75,7 @@ const CDAudio = {
       if (CDAudio.cd != null) {
         CDAudio.cd.loop = looping;
         if (looping === true && CDAudio.cd.paused === true) {
-          CDAudio.cd.play();
+          CDAudio._PlayWithErrorHandling();
         }
       }
       return;
@@ -72,7 +88,17 @@ const CDAudio = {
       CDAudio.cd = new Audio(CDAudio.known[trackNumber]);
       CDAudio.cd.loop = looping;
       CDAudio.cd.volume = CDAudio.cdvolume;
-      CDAudio.cd.play();
+      CDAudio._PlayWithErrorHandling();
+    }
+    if (trackNumber < 0 || trackNumber >= CDAudio.known.length) {
+      Con.DPrint(`CDAudio.Play: Bad track number ${track}.\n`);
+    } else {
+      CDAudio.Stop();
+      CDAudio.playTrack = trackNumber;
+      CDAudio.cd = new Audio(CDAudio.known[trackNumber]);
+      CDAudio.cd.loop = looping;
+      CDAudio.cd.volume = CDAudio.cdvolume;
+      CDAudio._PlayWithErrorHandling();
     }
   },
 
@@ -110,7 +136,13 @@ const CDAudio = {
       return;
     }
     if (CDAudio.cd != null) {
-      CDAudio.cd.play();
+      CDAudio.cd.play().catch(() => {
+        if (Cvar.verbose_logging === true) {
+          Sys.Print(
+            "CDAudio.Play: Autoplay not allowed (user interaction required).\n"
+          );
+        }
+      });
     }
   },
 

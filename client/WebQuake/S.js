@@ -6,15 +6,23 @@
 
 S = {};
 
+// currently active sound channels
 S.channels = [];
+// static sound channels
 S.static_channels = [];
+// ambient sound channels
 S.ambient_channels = [];
 
+// listener (player) world position
 S.listener_origin = [0.0, 0.0, 0.0];
+// listener forward vector for audio spatialisation
 S.listener_forward = [0.0, 0.0, 0.0];
+// listener right vector for audio spatialisation
 S.listener_right = [0.0, 0.0, 0.0];
+// listener up vector for audio spatialisation
 S.listener_up = [0.0, 0.0, 0.0];
 
+// array of known sound effects
 S.known_sfx = [];
 
 /**

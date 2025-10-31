@@ -12,20 +12,30 @@ R = {};
 // e.g. node.markvisframe !== R.visframecount
 R.visframecount = 0;
 
+// view frustum culling planes
 R.frustum = [{}, {}, {}, {}];
 
+// camera up vector
 R.vup = [];
+// camera forward vector
 R.vpn = [];
+// camera right vector
 R.vright = [];
 
+// rendering definition for current frame
 R.refdef = {
+  // view rectangle
   vrect: {},
+  // camera world position
   vieworg: [0.0, 0.0, 0.0],
+  // camera angles (pitch, yaw, roll)
   viewangles: [0.0, 0.0, 0.0],
 };
 
 // Lighting related
+// frame count for dynamic lighting
 R.dlightframecount = 0;
+// light style intensity values (0-255)
 R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 
 // efrag

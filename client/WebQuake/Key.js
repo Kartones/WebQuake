@@ -8,69 +8,118 @@ Key = {};
 
 // < 127 seem JS keycodes, remaining ones don't?
 Key.k = {
+  // tab key code
   tab: 9,
+  // enter/return key code
   enter: 13,
+  // escape key code
   escape: 27,
+  // spacebar key code
   space: 32,
 
+  // backspace key code
   backspace: 127,
+  // up arrow key code
   uparrow: 128,
+  // down arrow key code
   downarrow: 129,
+  // left arrow key code
   leftarrow: 130,
+  // right arrow key code
   rightarrow: 131,
 
+  // alt modifier key code
   alt: 132,
+  // ctrl modifier key code
   ctrl: 133,
+  // shift modifier key code
   shift: 134,
+  // f1 function key code
   f1: 135,
+  // f2 function key code
   f2: 136,
+  // f3 function key code
   f3: 137,
+  // f4 function key code
   f4: 138,
+  // f5 function key code
   f5: 139,
+  // f6 function key code
   f6: 140,
+  // f7 function key code
   f7: 141,
+  // f8 function key code
   f8: 142,
+  // f9 function key code
   f9: 143,
+  // f10 function key code
   f10: 144,
+  // f11 function key code
   f11: 145,
+  // f12 function key code
   f12: 146,
+  // insert key code
   ins: 147,
+  // delete key code
   del: 148,
+  // page down key code
   pgdn: 149,
+  // page up key code
   pgup: 150,
+  // home key code
   home: 151,
+  // end key code
   end: 152,
 
+  // pause key code
   pause: 255,
 
+  // left mouse button code
   mouse1: 200,
+  // right mouse button code
   mouse2: 201,
+  // middle mouse button code
   mouse3: 202,
 
+  // mouse wheel up code
   mwheelup: 239,
+  // mouse wheel down code
   mwheeldown: 240,
 };
 
+// console input line history
 Key.lines = [""];
+// current console input line being edited
 Key.edit_line = "";
+// current position in line history
 Key.history_line = 1;
 
 Key.dest = {
-  // enum
+  // enum values for input destination
+  // input destination for game play
   game: 0,
+  // input destination for console
   console: 1,
+  // input destination for chat messages
   message: 2,
+  // input destination for menu
   menu: 3,
 
   // and actual value:
+  // currently active input destination
   value: 0,
 };
 
+// key binding commands for each key
 Key.bindings = [];
+// which keys toggle console
 Key.consolekeys = [];
+// which keys can be shifted
 Key.shift = [];
+// which keys are currently down
 Key.down = [];
 
+// chat message input buffer
 Key.chat_buffer = "";
 
 Key.names = [

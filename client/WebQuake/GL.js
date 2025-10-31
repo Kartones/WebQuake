@@ -6,13 +6,17 @@
 
 GL = {};
 
-// WebGL window context, and WebGL functions.
+// WebGL rendering context
 gl = null;
 
+// array of loaded textures
 GL.textures = [];
+// currently active texture bindings
 GL.currenttextures = [];
+// array of WebGL shader programs
 GL.programs = [];
 
+// orthographic projection matrix
 GL.ortho = [
     0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0,
@@ -20,6 +24,7 @@ GL.ortho = [
     -1.0, 1.0, 0.0, 1.0
 ];
 
+// identity transformation matrix
 GL.identity = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
 
 /**
