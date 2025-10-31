@@ -6,58 +6,94 @@
 CL = {};
 
 CL.cshift = {
+  // color shift type: contents
   contents: 0,
+  // color shift type: damage
   damage: 1,
+  // color shift type: bonus
   bonus: 2,
+  // color shift type: powerup
   powerup: 3,
 };
 
 CL.active = {
+  // connection state: disconnected
   disconnected: 0,
+  // connection state: connecting
   connecting: 1,
+  // connection state: connected
   connected: 2,
 };
 
 // Main state
 CL.cls = {
+  // current connection/signon state
   state: 0,
+  // spawn parameters passed from server
   spawnparms: "",
+  // demo number in sequence
   demonum: 0,
+  // message buffer for network communication
   message: {
+    // raw message data buffer
     data: new ArrayBuffer(8192),
+    // current size of message in bytes
     cursize: 0,
   },
 };
+// static entities from server that don't move
 CL.static_entities = [];
+// entities visible in current frame
 CL.visedicts = [];
 
 // See below ClearState() for more state properties
 
 // Input related
 CL.kbutton = {
+  // key button index: mlook
   mlook: 0,
+  // key button index: klook
   klook: 1,
+  // key button index: left
   left: 2,
+  // key button index: right
   right: 3,
+  // key button index: forward
   forward: 4,
+  // key button index: back
   back: 5,
+  // key button index: lookup
   lookup: 6,
+  // key button index: lookdown
   lookdown: 7,
+  // key button index: moveleft
   moveleft: 8,
+  // key button index: moveright
   moveright: 9,
+  // key button index: strafe
   strafe: 10,
+  // key button index: speed
   speed: 11,
+  // key button index: use
   use: 12,
+  // key button index: jump
   jump: 13,
+  // key button index: attack
   attack: 14,
+  // key button index: moveup
   moveup: 15,
+  // key button index: movedown
   movedown: 16,
+  // total number of key button types
   num: 17,
 };
+// button state for each key button type
 CL.kbuttons = [];
 
 CL.sendmovebuf = {
+  // message buffer for movement data
   data: new ArrayBuffer(16),
+  // current size of movement message
   cursize: 0,
 };
 
@@ -100,6 +136,7 @@ CL.svc_strings = [
   "cutscene",
 ];
 
+// time of last keep-alive message sent to server
 CL.lastmsg = 0.0;
 
 // Temporary entities ("tent") related
@@ -117,60 +154,95 @@ CL.ClearState = function () {
   }
 
   CL.state = {
+    // number of received movement messages
     movemessages: 0,
+    // player movement command with forward/side/up components
     cmd: {
+      // forward movement velocity
       forwardmove: 0.0,
+      // side movement velocity
       sidemove: 0.0,
+      // up movement velocity
       upmove: 0.0,
     },
+    // array of player statistics values
     stats: [
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0,
     ],
+    // bitfield of acquired items
     items: 0,
+    // timestamp of when each item was picked up
     item_gettime: [
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
       0.0, 0.0,
     ],
+    // timestamp for face animation
     faceanimtime: 0.0,
+    // array of color shifts [contents, damage, bonus, powerup]
     cshifts: [
       [0.0, 0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0, 0.0],
     ],
+    // interpolated view angles [previous, current]
     mviewangles: [
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
     ],
+    // current view angles in degrees
     viewangles: [0.0, 0.0, 0.0],
+    // interpolated velocity [previous, current]
     mvelocity: [
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
     ],
+    // current player velocity
     velocity: [0.0, 0.0, 0.0],
+    // current punch angle from damage
     punchangle: [0.0, 0.0, 0.0],
+    // ideal pitch angle after damage knockback
     idealpitch: 0.0,
+    // pitch angle velocity for drift
     pitchvel: 0.0,
+    // drift movement distance
     driftmove: 0.0,
+    // last time movement stopped
     laststop: 0.0,
+    // crouch state
     crouch: 0.0,
+    // intermission state (0=none, 1=intermission, 2=finale, 3=cutscene)
     intermission: 0,
+    // time when current level was completed
     completed_time: 0,
+    // interpolated time [previous, current]
     mtime: [0.0, 0.0],
+    // current server time
     time: 0.0,
+    // previous server time
     oldtime: 0.0,
+    // timestamp of last received message
     last_received_message: 0.0,
+    // entity number for current view
     viewentity: 0,
+    // number of static entities
     num_statics: 0,
+    // view entity information
     viewent: {
+      // entity number (-1 for none)
       num: -1,
+      // origin position
       origin: [0.0, 0.0, 0.0],
+      // angle orientation
       angles: [0.0, 0.0, 0.0],
+      // model skin number
       skinnum: 0,
     },
+    // CD audio track to play
     cdtrack: 0,
+    // loop track number
     looptrack: 0,
   };
 
@@ -646,7 +718,12 @@ CL.InitInput = function () {
   Cmd.AddCommand("-mlook", CL.MLookUp);
 
   for (i = 0; i < CL.kbutton.num; ++i)
-    CL.kbuttons[i] = { down: [0, 0], state: 0 };
+    CL.kbuttons[i] = {
+      // array of two keys that trigger this button
+      down: [0, 0],
+      // current button state (bit flags for active, pressed, released)
+      state: 0,
+    };
 };
 
 // main
@@ -1113,34 +1190,56 @@ CL.EntityNum = function (num) {
   if (num < CL.entities.length) return CL.entities[num];
   for (; CL.entities.length <= num; ) {
     CL.entities[CL.entities.length] = {
+      // entity index number
       num: num,
+      // type of update for this entity
       update_type: 0,
+      // baseline state from server
       baseline: {
+        // origin position
         origin: [0.0, 0.0, 0.0],
+        // angle orientation
         angles: [0.0, 0.0, 0.0],
+        // model index
         modelindex: 0,
+        // animation frame
         frame: 0,
+        // player color mapping
         colormap: 0,
+        // model skin number
         skin: 0,
+        // visual effects flags
         effects: 0,
       },
+      // timestamp of last message for this entity
       msgtime: 0.0,
+      // interpolated origin positions [current, previous]
       msg_origins: [
         [0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0],
       ],
+      // current world position
       origin: [0.0, 0.0, 0.0],
+      // interpolated angle orientations [current, previous]
       msg_angles: [
         [0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0],
       ],
+      // current angles
       angles: [0.0, 0.0, 0.0],
+      // animation frame index
       frame: 0,
+      // animation synchronization base for random frame offset
       syncbase: 0.0,
+      // visual effects flags
       effects: 0,
+      // skin number for model
       skinnum: 0,
+      // current vis frame for visibility culling
       visframe: 0,
+      // frame for dynamic light culling
       dlightframe: 0,
+      // bitfield for dynamic lights affecting entity
       dlightbits: 0,
     };
   }
@@ -1227,9 +1326,13 @@ CL.ParseServerInfo = function () {
   CL.state.scores = [];
   for (i = 0; i < CL.state.maxclients; ++i) {
     CL.state.scores[i] = {
+      // player name
       name: "",
+      // time player entered the game
       entertime: 0.0,
+      // player's current score
       frags: 0,
+      // player color settings
       colors: 0,
     };
   }
@@ -1429,22 +1532,33 @@ CL.ParseClientdata = function (bits) {
  */
 CL.ParseStatic = function () {
   var ent = {
+    // entity number (-1 for static entities)
     num: -1,
+    // update type
     update_type: 0,
+    // baseline state
     baseline: { origin: [], angles: [] },
+    // timestamp of last message
     msgtime: 0.0,
+    // interpolated origin positions
     msg_origins: [
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
     ],
+    // interpolated angles
     msg_angles: [
       [0.0, 0.0, 0.0],
       [0.0, 0.0, 0.0],
     ],
+    // animation synchronization base
     syncbase: 0.0,
+    // current vis frame
     visframe: 0,
+    // dynamic light frame
     dlightframe: 0,
+    // dynamic light bits
     dlightbits: 0,
+    // leaf nodes this entity is in
     leafs: [],
   };
   CL.static_entities[CL.state.num_statics++] = ent;

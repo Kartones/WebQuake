@@ -7,27 +7,54 @@
 Mod = {};
 
 Mod.effects = {
+  // particle spray effect
   brightfield: 1,
+  // weapon muzzle flash
   muzzleflash: 2,
+  // bright light glow
   brightlight: 4,
+  // dim light glow
   dimlight: 8,
 };
 
-Mod.type = { brush: 0, sprite: 1, alias: 2 };
+Mod.type = {
+  // brush model type
+  brush: 0,
+  // sprite model type
+  sprite: 1,
+  // alias model type
+  alias: 2,
+};
 
 Mod.flags = {
+  // rocket projectile
   rocket: 1,
+  // grenade projectile
   grenade: 2,
+  // gibs (body parts)
   gib: 4,
+  // rotating model
   rotate: 8,
+  // tracer effect
   tracer: 16,
+  // zombie gibs
   zomgib: 32,
+  // alternate tracer
   tracer2: 64,
+  // another tracer variant
   tracer3: 128,
 };
 
-Mod.version = { brush: 29, sprite: 1, alias: 6 };
+Mod.version = {
+  // brush model version
+  brush: 29,
+  // sprite model version
+  sprite: 1,
+  // alias model version
+  alias: 6,
+};
 
+// array of known loaded models
 Mod.known = [];
 
 /**
@@ -172,31 +199,54 @@ Mod.ForName = function (name, crash) {
 */
 
 Mod.lump = {
+  // entity definitions
   entities: 0,
+  // plane equations
   planes: 1,
+  // texture definitions
   textures: 2,
+  // vertex positions
   vertexes: 3,
+  // visibility data (PVS)
   visibility: 4,
+  // bsp tree nodes
   nodes: 5,
+  // texture info/surface properties
   texinfo: 6,
+  // face/polygon data
   faces: 7,
+  // lightmap data
   lighting: 8,
+  // collision/clip nodes
   clipnodes: 9,
+  // bsp leaf nodes
   leafs: 10,
+  // face references
   marksurfaces: 11,
+  // edge definitions
   edges: 12,
+  // surface edge references
   surfedges: 13,
+  // submodel definitions
   models: 14,
 };
 
 Mod.contents = {
+  // empty space
   empty: -1,
+  // solid object
   solid: -2,
+  // water volume
   water: -3,
+  // slime volume
   slime: -4,
+  // lava volume
   lava: -5,
+  // sky/ceiling volume
   sky: -6,
+  // entity origin point
   origin: -7,
+  // clip trigger brush
   clip: -8,
   current_0: -9,
   current_90: -10,

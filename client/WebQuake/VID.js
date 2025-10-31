@@ -6,6 +6,7 @@
 
 VID = {};
 
+// lookup table for converting 8-bit palette indices to 24-bit RGB colors
 VID.d_8to24table = new Uint32Array(new ArrayBuffer(1024));
 
 /**

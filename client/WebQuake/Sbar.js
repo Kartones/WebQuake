@@ -5,7 +5,11 @@
  */
 Sbar = {};
 
+/**
+ * Show scores overlay.
+ */
 Sbar.ShowScores = function () {
+  // whether to show scores overlay
   Sbar.showscores = true;
 };
 
@@ -13,6 +17,7 @@ Sbar.ShowScores = function () {
  * DontShowScores function.
  */
 Sbar.DontShowScores = function () {
+  // whether to show scores overlay
   Sbar.showscores = false;
 };
 

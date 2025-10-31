@@ -4,11 +4,17 @@
  * Music logic. Legacy name, as WebQuake uses ogg music files if present
  */
 const CDAudio = {
+  // whether the CD audio system has been initialized
   initialized: false,
+  // array of known music track file paths indexed by track number
   known: [],
+  // currently playing audio element
   cd: undefined,
+  // currently playing track number or null if none
   playTrack: null,
+  // whether CD audio playback is enabled
   enabled: false,
+  // current volume level for CD audio (0.0 to 1.0)
   cdvolume: 0.0,
 
   /**

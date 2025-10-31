@@ -6,8 +6,10 @@
 
 COM = {};
 
+// command line arguments
 COM.argv = [];
 
+// whether to use standard Quake (vs custom variant)
 COM.standard_quake = true;
 
 /**
@@ -191,6 +193,7 @@ COM.Init = function () {
   COM.CheckRegistered();
 };
 
+// list of file system search paths for locating resources
 COM.searchpaths = [];
 
 /**

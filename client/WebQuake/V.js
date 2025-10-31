@@ -5,6 +5,7 @@
  */
 V = {};
 
+// damage flash time remaining
 V.dmg_time = 0.0;
 
 /**

@@ -10,9 +10,13 @@ Chase = {};
  * Initialize chase cam cvars.
  */
 Chase.Init = function () {
+  // distance behind the player for chase cam
   Chase.back = Cvar.RegisterVariable("chase_back", "100");
+  // height above player for chase cam
   Chase.up = Cvar.RegisterVariable("chase_up", "16");
+  // horizontal offset to the right for chase cam
   Chase.right = Cvar.RegisterVariable("chase_right", "0");
+  // whether chase cam is active
   Chase.active = Cvar.RegisterVariable("chase_active", "0");
 };
 
